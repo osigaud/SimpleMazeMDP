@@ -1,3 +1,7 @@
+'''
+Author: Olivier Sigaud
+'''
+
 import numpy as np
 from mazemdp.toolbox import N, S, E, W
 from mazemdp.maze_plotter import MazePlotter  # used to plot the maze
