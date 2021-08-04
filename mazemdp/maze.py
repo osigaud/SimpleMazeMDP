@@ -1,5 +1,4 @@
 import numpy as np
-import random
 from mazemdp.toolbox import N, S, E, W
 from mazemdp.maze_plotter import MazePlotter  # used to plot the maze
 from mazemdp.mdp import SimpleActionSpace, Mdp
@@ -9,24 +8,6 @@ def build_maze(width, height, walls, hit=False):
     ts = height * width - 1 - len(walls)
     maze = Maze(width, height, hit, walls=walls, terminal_states=[ts])  # Markov Decision Process definition
     return maze.mdp
-
-
-def create_random_maze(width, height, ratio):
-    size = width * height
-    n_walls = round(ratio * size)
-
-    stop = False
-    m = None
-    # the loop below is used to check that the maze has a solution
-    # if one of the values after value iteration is null, then another maze should be produced
-    while not stop:
-        walls = random.sample(range(size), int(n_walls))
-
-        m = build_maze(width, height, walls)
-        v, _ = value_iteration_v(m, render=False)
-        if np.all(v):
-            stop = True
-    return m
 
 class Maze:  # describes a maze-like environment
     def __init__(self, width, height, hit=False, walls=[], action_list=[], nb_actions=4,
