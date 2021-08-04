@@ -86,16 +86,16 @@ class Mdp:  # defines a Markov Decision Process
         
         return [state, reward, done, info]
     
-    def new_render(self):  # initializes a new environment rendering (a plot defined by a figure, an axis...)
-        self.plotter.new_render()
+    def new_render(self, title):  # initializes a new environment rendering (a plot defined by a figure, an axis...)
+        self.plotter.new_render(title)
     
-    def render(self, v=[], policy=[], agent_pos=-1):  # outputs the agent in the environment with values V (or Q)
+    def render(self, v=[], policy=[], agent_pos=-1, title='No Title'):  # outputs the agent in the environment with values V (or Q)
         if agent_pos > -1:
-            self.plotter.render(agent_state=agent_pos, v=v)
+            self.plotter.render(agent_state=agent_pos, v=v, title='No Title')
         elif self.current_state > -1:  # and not self.last_action_achieved:
-            self.plotter.render(agent_state=self.current_state, v=v, policy=policy)
+            self.plotter.render(agent_state=self.current_state, v=v, policy=policy, title='No Title')
         else:
-            self.plotter.render(v=v)
+            self.plotter.render(v=v, title='No Title')
         
     def save_fig(self, title):  # saves the current output into the disk
         self.plotter.save_fig(title)

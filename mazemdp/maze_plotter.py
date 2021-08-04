@@ -96,9 +96,10 @@ class MazePlotter:
         
         self.axes_history[-1].add_table(self.table_history[-1])
     
-    def new_render(self):  # initializes the plot by creating its basic components (figure, axis, agent patch and table)
+    def new_render(self, title):  # initializes the plot by creating its basic components (figure, axis, agent patch and table)
         # a trace of these components is stored so that the old outputs will last on the notebook
         # when a new rendering is performed
+        plt.title(title)
         self.figure_history.append(plt.figure(figsize=(self.figW, self.figH)))
         self.axes_history.append(self.figure_history[-1].add_subplot(111))
         self.table_history.append(Table(self.axes_history[-1], bbox=[0, 0, 1, 1]))
@@ -106,11 +107,11 @@ class MazePlotter:
         self.axes_history[-1].add_patch(self.agent_patch_history[-1])
         self.init_table()
     
-    def render(self, agent_state=-1, v=[], policy=[], stochastic=False):  # updates the values of the table
+    def render(self, agent_state=-1, v=[], policy=[], stochastic=False, title='No Title'):  # updates the values of the table
         # and the agent position and current policy 
         # some of these components may not show depending on the parameters given when calling this function
         if len(self.figure_history) == 0:  # new plot
-            self.new_render()
+            self.new_render(title)
         
         self.axes_history[-1].clear()
         self.axes_history[-1].add_table(self.table_history[-1])
