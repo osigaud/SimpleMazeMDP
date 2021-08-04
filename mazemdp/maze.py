@@ -10,6 +10,23 @@ def build_maze(width, height, walls, hit=False):
     return maze.mdp
 
 
+def create_random_maze(width, height, ratio):
+    size = width * height
+    n_walls = round(ratio * size)
+
+    stop = False
+    m = None
+    # the loop below is used to check that the maze has a solution
+    # if one of the values after value iteration is null, then another maze should be produced
+    while not stop:
+        walls = random.sample(range(size), int(n_walls))
+
+        m = build_maze(width, height, walls)
+        v, _ = value_iteration_v(m, render=False)
+        if np.all(v):
+            stop = True
+    return m
+
 class Maze:  # describes a maze-like environment
     def __init__(self, width, height, hit=False, walls=[], action_list=[], nb_actions=4,
                  gamma=0.9, timeout=50, start_states=[0], terminal_states=[]):

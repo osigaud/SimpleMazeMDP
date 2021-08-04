@@ -1,5 +1,9 @@
+import os
 from setuptools import setup
 
+with open(os.path.join("mazemdp", "version.txt"), "r") as file_handler:
+    __version__ = file_handler.read().strip()
+    
 setup(
     # Needed to silence warnings (and to be a worthwhile package)
     name='mazemdp',
