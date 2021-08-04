@@ -1,3 +1,7 @@
+'''
+Author: Olivier Sigaud
+'''
+
 import numpy as np
 from mazemdp.toolbox import discreteProb
 
