@@ -1,7 +1,7 @@
 import numpy as np
-from toolbox import N, S, E, W
-from maze_plotter import MazePlotter  # used to plot the maze
-from mdp import SimpleActionSpace, Mdp
+from mazemdp.toolbox import N, S, E, W
+from mazemdp.maze_plotter import MazePlotter  # used to plot the maze
+from mazemdp.mdp import SimpleActionSpace, Mdp
 
 
 def build_maze(width, height, walls, hit=False):

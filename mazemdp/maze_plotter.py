@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib.patches as mpatches
 from matplotlib.table import Table
-from toolbox import N, S, E, W
+from mazemdp.toolbox import N, S, E, W
 
 # ------------------- plot functions for a maze like environment ----------------#
 

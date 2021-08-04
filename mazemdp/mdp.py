@@ -1,5 +1,5 @@
 import numpy as np
-from toolbox import discreteProb
+from mazemdp.toolbox import discreteProb
 
 
 class SimpleActionSpace:  # class describing the action space of the markov decision process
