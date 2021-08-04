@@ -6,7 +6,7 @@ with open(os.path.join("mazemdp", "version.txt"), "r") as file_handler:
     
 setup(
     # Needed to silence warnings (and to be a worthwhile package)
-    name='mazemdp',
+    name='simplemazemdp',
     url='https://github.com/osigaud/SimpleMazeMDP',
     author='Olivier Sigaud',
     author_email='Olivier.Sigaud@upmc.fr',
