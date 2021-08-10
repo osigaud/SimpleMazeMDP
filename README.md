@@ -5,13 +5,13 @@ This repository contains code to provide a simple Maze environment used as examp
 ## Documentation ##
 
 
-## MDPs and mazes ##
+### MDPs and mazes ###
 
 Some code is provided to create mazes, transform them into MDPs and visualize them together with policies or value functions.
 It is contained into three files: \url{maze.py}, \url{mdp.py} and \url{maze_plotter.py}.
 The following sections give an overview of this code.
 
-# Content of the maze.py file #
+#### Content of the maze.py file ####
 
 A maze is represented as an object of the \url{Maze} class. It is defined as a grid of $width \times height$ cells, and some of these cells contain a wall.
 
@@ -23,7 +23,7 @@ Apart from representing the two reward functions described above, the \url{Maze}
 
 The maze constructors also builds the action space, the initial state distribution, the transition function and the reward function of the MDP. Once all these data structures have been created, the resulting MDP is built.
 
-# Content of the mdp.py file #
+#### Content of the mdp.py file ####
 
 The \url{mdp.py} file contains the \url{SimpleActionSpace} class and the \url{Mdp} class.
 
@@ -31,7 +31,7 @@ The \url{SimpleActionSpace} class contains the list of actions and a method to s
 
 The \url{Mdp} class is designed to be compatible with the OpenAI gym interface\footnote{\url{https://gym.openai.com/}}. The main methods are \url{reset(self, uniform=False)}, which resets the MDP into an initial state drawn from the initial state distribution, and \url{step(self, u, deviation=0)} which is used to let the agent perform a step in the environment, sending and action and receiving the next state, the reward, and a signal telling whether a terminal state was reached.
 
-# Content of the maze_plotter.py file #
+#### Content of the maze_plotter.py file ####
 
 The code to display the effect of the algorithms in these environments is in \url{maze_plotter.py}, in the \url{MazePlotter} class.
 In order to visualize the environment, you use the \url{new_render()} function to initialize the rendering, then \url{render(V, policy, agent_pos)} to refresh the maze with either the newly calculated state values and the policy, or the state-action values, and eventually the current position of the agent. There is also a \url{render_pi(policy)} function which only displays the policy (useful for {\sc policy iteration}). The function \url{save_fig(title)} is used to save the last render into a file.
