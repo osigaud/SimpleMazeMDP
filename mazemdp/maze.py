@@ -3,6 +3,7 @@ Author: Olivier Sigaud
 '''
 
 import numpy as np
+import random
 from mazemdp.toolbox import N, S, E, W
 from mazemdp.maze_plotter import MazePlotter  # used to plot the maze
 from mazemdp.mdp import SimpleActionSpace, Mdp
