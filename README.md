@@ -4,7 +4,6 @@ This repository contains code to provide a simple Maze environment used as examp
 
 ## Documentation ##
 
-
 ### MDPs and mazes ###
 
 Some code is provided to create mazes, transform them into MDPs and visualize them together with policies or value functions.
@@ -23,6 +22,8 @@ Apart from representing the two reward functions described above, the *Maze* cla
 
 The maze constructors also builds the action space, the initial state distribution, the transition function and the reward function of the MDP. Once all these data structures have been created, the resulting MDP is built.
 
+A *build_maze()* and a *create_random_maze()* functions are provided to create mazes in the lab notebooks or python files.
+
 #### Content of the *mdp.py* file ####
 
 The *mdp.py* file contains the *SimpleActionSpace* class and the *Mdp* class.
@@ -38,3 +39,8 @@ In order to visualize the environment, you use the *new_render()* function to in
 
 
 You can see examples of calls to these different visualizations in the functions defined in dynamic programming and reinforcement learning notebooks or python files.
+
+
+### Toolbox ###
+
+The *toolbox.py* file provide a few useful functions such as *egreedy()*, *egreedy_loc()* and *softmax* which are used to perform exploration in reinforcement learning algorithms.
