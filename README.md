@@ -37,4 +37,4 @@ The code to display the effect of the algorithms in these environments is in *ma
 In order to visualize the environment, you use the *new_render()* function to initialize the rendering, then *render(V, policy, agent_pos)* to refresh the maze with either the newly calculated state values and the policy, or the state-action values, and eventually the current position of the agent. There is also a *render_pi(policy)* function which only displays the policy (useful for *policy iteration*). The function *save_fig(title)* is used to save the last render into a file.
 
 
-You can see examples of calls to these different visualizations in the functions defined in dynamic programming and reinforcementlearning notebooks or pytnon files.
+You can see examples of calls to these different visualizations in the functions defined in dynamic programming and reinforcement learning notebooks or python files.
