@@ -43,4 +43,4 @@ You can see examples of calls to these different visualizations in the functions
 
 ### Toolbox ###
 
-The *toolbox.py* file provide a few useful functions such as *egreedy()*, *egreedy_loc()* and *softmax* which are used to perform exploration in reinforcement learning algorithms.
+The *toolbox.py* file provide a few useful functions such as *egreedy()*, *egreedy_loc()* and *softmax()* which are used to perform exploration in reinforcement learning algorithms.
