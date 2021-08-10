@@ -8,23 +8,72 @@ from mazemdp.maze_plotter import MazePlotter  # used to plot the maze
 from mazemdp.mdp import SimpleActionSpace, Mdp
 
 
+def check_navigability(mdp):
+    v = np.zeros(mdp.nb_states)  # initial state values are set to 0
+    stop = False
+
+    while not stop:
+        v_old = v.copy()
+ 
+        for x in range(mdp.nb_states):  # for each state x
+            # Compute the value of the state x for each action u of the MDP action space
+            v_temp = []
+            for u in mdp.action_space.actions:
+                if x not in mdp.terminal_states:
+                    # Process sum of the values of the neighbouring states
+                    summ = 0
+                    for y in range(mdp.nb_states):
+                        summ = summ + mdp.P[x, u, y] * v_old[y]
+                    v_temp.append(mdp.r[x, u] + summ)
+                else:  # if the state is final, then we only take the reward into account
+                    v_temp.append(mdp.r[x, u])
+
+                    # Select the highest state value among those computed
+            v[x] = np.max(v_temp)
+
+        # Test if convergence has been reached
+        if (np.linalg.norm(v - v_old)) < 0.01:
+            stop = True
+    return np.all(v)
+
+
 def build_maze(width, height, walls, hit=False):
     ts = height * width - 1 - len(walls)
     maze = Maze(width, height, hit, walls=walls, terminal_states=[ts])  # Markov Decision Process definition
     return maze.mdp
 
+
+def create_random_maze(width, height, ratio):
+    size = width * height
+    n_walls = round(ratio * size)
+
+    stop = False
+    mdp = None
+    # the loop below is used to check that the maze has a solution
+    # if one of the values after check_navigability is null, then another maze should be produced
+    while not stop:
+        walls = random.sample(range(size), int(n_walls))
+
+        mdp = build_maze(width, height, walls)
+        stop = check_navigability(mdp)
+    return mdp
+
+
 class Maze:  # describes a maze-like environment
     def __init__(self, width, height, hit=False, walls=[], action_list=[], nb_actions=4,
                  gamma=0.9, timeout=50, start_states=[0], terminal_states=[]):
-        # width, height : int numbers defining the maze attributes
-        # walls : list of the states that represent walls in our maze environment
-        # action_list : list of possible actions
-        # nb_actions : used when action_list is empty, by default there are 4 of them (go north, south, eat or west)
-        # gamma : the discount factor of our mdp
-        # timeout : defines the length of an episode (max timestep) --see done() function
-        # start_states : list that defines the states where the agent can be at the beginning of an episode
-        # terminal_states : list that defines the states corresponding to the end of an episode
-        #                  (agent reaches a terminal state) --cf. done() function
+        """
+        :param width: Int number defining the maze width
+        :param height: Int number defining the maze height
+        :param walls: List of the states that represent walls in our maze environment
+        :param action_list: List of possible actions
+        :param nb_actions: used when action_list is empty, by default there are 4 of them (go north, south, eat or west)
+        :param gamma: Discount factor of the mdp
+        :param timeout: Defines the length of an episode (max timestep) --see done() function
+        :param start_states: List defining the states where the agent can be at the beginning of an episode
+        :param terminal_states: List defining the states corresponding to the end of an episode
+                        (agent reaches a terminal state) --cf. done() function
+        """
         self.width = width
         self.height = height
         self.cells = np.zeros((width, height), int)
