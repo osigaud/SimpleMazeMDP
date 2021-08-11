@@ -155,8 +155,8 @@ class MazePlotter:
         plt.xticks([])
         plt.yticks([])
         self.figure_history[-1].canvas.draw()
-        self.figure_history[-1].canvas.flush_events()
         self.images.append(np.asarray(self.figure_history[-1].canvas.buffer_rgba()))
+        self.figure_history[-1].canvas.flush_events()
 
     def cell_render_v(self, v, i, j, state):
         color = np.zeros(3)
