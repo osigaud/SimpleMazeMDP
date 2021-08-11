@@ -8,6 +8,8 @@ import matplotlib.animation as animation
 import matplotlib.patches as mpatches
 from matplotlib.table import Table
 from mazemdp.toolbox import N, S, E, W
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+from matplotlib.figure import Figure
 
 # ------------------- plot functions for a maze like environment ----------------#
 
@@ -83,12 +85,13 @@ class MazePlotter:
         self.axes_history = []
         self.table_history = []
         self.agent_patch_history = []
-        
+        self.images = []
+
     def init_table(self):  # the states of the mdp are drawn in a matplotlib table, this function creates this table
-        
+
         width = 0.1
         height = 0.2
-        
+
         for i in range(self.maze_attr.width):
             for j in range(self.maze_attr.height):
                 color = np.zeros(3)
@@ -97,9 +100,9 @@ class MazePlotter:
                 else:
                     color[0] = color[1] = color[2] = 1
                 self.table_history[-1].add_cell(j, i, width, height, facecolor=color, text='', loc='center')
-        
+
         self.axes_history[-1].add_table(self.table_history[-1])
-    
+
     def new_render(self, title):  # initializes the plot by creating its basic components (figure, axis, agent patch and table)
         # a trace of these components is stored so that the old outputs will last on the notebook
         # when a new rendering is performed
@@ -110,16 +113,22 @@ class MazePlotter:
         self.agent_patch_history.append(mpatches.Ellipse((-1, -1), 0.06, 0.085, ec="none", fc="dodgerblue", alpha=0.6))
         self.axes_history[-1].add_patch(self.agent_patch_history[-1])
         self.init_table()
-    
-    def render(self, agent_state=-1, v=[], policy=[], stochastic=False, title='No Title'):  # updates the values of the table
-        # and the agent position and current policy 
+
+    def render(self, agent_state=-1, v=None, policy=None, stochastic=False, title='No Title'):  # updates the values of the table
+        # and the agent position and current policy
         # some of these components may not show depending on the parameters given when calling this function
         if len(self.figure_history) == 0:  # new plot
             self.new_render(title)
-        
+
+        if v is None:
+            v = []
+
+        if policy is None:
+            policy = []
+
         self.axes_history[-1].clear()
         self.axes_history[-1].add_table(self.table_history[-1])
-        
+
         # Table values and policy update
         for i in range(self.maze_attr.width):
             for j in range(self.maze_attr.height):
@@ -134,19 +143,20 @@ class MazePlotter:
                         self.render_stochastic_policy(v, policy, i, j, state)
                     else:
                         self.render_policy(policy, i, j, state)
-        
+
         if agent_state >= 0:
             x, y = coords(self.maze_attr.width, self.maze_attr.height,
                           self.maze_attr.state_width[agent_state],
                           self.maze_attr.state_height[agent_state])
             self.agent_patch_history[-1].center = x, y
             self.axes_history[-1].add_patch(self.agent_patch_history[-1])
-        
+
         plt.subplots_adjust(left=0.2, bottom=0.2)
         plt.xticks([])
         plt.yticks([])
         self.figure_history[-1].canvas.draw()
         self.figure_history[-1].canvas.flush_events()
+        self.images.append(np.asarray(self.figure_history[-1].canvas.buffer_rgba()))
 
     def cell_render_v(self, v, i, j, state):
         color = np.zeros(3)
@@ -204,6 +214,7 @@ class MazePlotter:
                 self.render_policy(policy, i, j, state)
         self.figure_history[-1].canvas.draw()
         self.figure_history[-1].canvas.flush_events()
+        self.images.append(np.asarray(self.figure_history[-1].canvas.buffer_rgba()))
 
     def render_policy(self, policy, i, j, state):
         if not (state == -1 or state in self.terminal_states):

@@ -3,7 +3,7 @@ from setuptools import setup
 
 with open(os.path.join("mazemdp", "version.txt"), "r") as file_handler:
     __version__ = file_handler.read().strip()
-    
+
 setup(
     # Needed to silence warnings (and to be a worthwhile package)
     name='simplemazemdp',
@@ -13,7 +13,7 @@ setup(
     # Needed to actually package something
     packages=['mazemdp'],
     # Needed for dependencies
-    install_requires=['numpy'],
+    install_requires=['numpy', 'plotly>=5.1.0'],
     # *strongly* suggested for sharing
     version='0.1',
     # The license can be anything you like
