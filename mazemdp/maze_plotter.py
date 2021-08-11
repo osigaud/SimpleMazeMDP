@@ -158,8 +158,9 @@ class MazePlotter:
         plt.yticks([])
         self.figure_history[-1].canvas.draw()
         self.figure_history[-1].canvas.flush_events()
+        # Save image
         self.figure_history[-1].savefig(f"images/{self.image_idx}.png")
-        self.image_id += 1
+        self.image_idx += 1
 
     def cell_render_v(self, v, i, j, state):
         color = np.zeros(3)
