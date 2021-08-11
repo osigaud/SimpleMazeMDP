@@ -3,6 +3,9 @@ Author: Olivier Sigaud
 '''
 
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib.patches as mpatches
