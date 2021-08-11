@@ -19,7 +19,7 @@ setup(
     # Needed for dependencies
     install_requires=['numpy', 'plotly>=5.1.0'],
     # *strongly* suggested for sharing
-    version=f'0.1@{hash}',
+    version=f'0.1.post{hash}',
     # The license can be anything you like
     license='MIT',
     description='An simple maze to test dynamic programming and tabular reinforcement learning algorithms',
