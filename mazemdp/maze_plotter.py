@@ -1,18 +1,16 @@
 '''
 Author: Olivier Sigaud
 '''
+import os
 
 import numpy as np
 import matplotlib
-matplotlib.use('Agg')
-
+# matplotlib.use('Agg') # change backend to retrieve images
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib.patches as mpatches
 from matplotlib.table import Table
 from mazemdp.toolbox import N, S, E, W
-from matplotlib.backends.backend_agg import FigureCanvasAgg
-from matplotlib.figure import Figure
 
 # ------------------- plot functions for a maze like environment ----------------#
 
@@ -88,7 +86,8 @@ class MazePlotter:
         self.axes_history = []
         self.table_history = []
         self.agent_patch_history = []
-        self.images = []
+        self.image_idx = 0
+        os.makedirs("images", exist_ok=True)
 
     def init_table(self):  # the states of the mdp are drawn in a matplotlib table, this function creates this table
 
@@ -158,8 +157,9 @@ class MazePlotter:
         plt.xticks([])
         plt.yticks([])
         self.figure_history[-1].canvas.draw()
-        self.images.append(np.asarray(self.figure_history[-1].canvas.buffer_rgba()))
         self.figure_history[-1].canvas.flush_events()
+        self.figure_history[-1].savefig(f"images/{self.image_idx}.png")
+        self.image_id += 1
 
     def cell_render_v(self, v, i, j, state):
         color = np.zeros(3)
