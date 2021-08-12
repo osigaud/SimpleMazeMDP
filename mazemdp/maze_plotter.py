@@ -141,7 +141,8 @@ class MazePlotter:
         self.image_idx = 0
         self.video_writer = None
         self.video_name = ""
-        os.makedirs("videos", exist_ok=True)
+        self.video_folder = "videos"
+        os.makedirs(self.video_folder, exist_ok=True)
 
     def init_table(self):  # the states of the mdp are drawn in a matplotlib table, this function creates this table
 
@@ -184,7 +185,6 @@ class MazePlotter:
         policy=None,
         stochastic=False,
         title="No Title",
-        save_images=False,
     ):  # updates the values of the table
         # and the agent position and current policy
         # some of these components may not show depending on the parameters given when calling this function
@@ -241,14 +241,14 @@ class MazePlotter:
                 width, height, _ = image.shape
                 codec = cv2.VideoWriter_fourcc(*"MJPG")
                 fps = int(os.environ.get("VIDEO_FPS", 3))
-                self.video_writer = cv2.VideoWriter(f"images/{self.video_name}", codec, fps, (width, height))
+                self.video_writer = cv2.VideoWriter(f"{self.video_folder}/{self.video_name}", codec, fps, (width, height))
             image = image[:, :, :3]  # remove alpha
             self.video_writer.write(image[:, :, ::-1])  # convert to BGR
 
         # Save image
-        if save_images:
-            self.figure_history[-1].savefig(f"videos/{self.image_idx}.png")
-            self.image_idx += 1
+        # if save_images:
+        #     self.figure_history[-1].savefig(f"{self.video_folder}/{self.image_idx}.png")
+        #     self.image_idx += 1
 
     def cell_render_v(self, v, i, j, state):
         color = np.zeros(3)
