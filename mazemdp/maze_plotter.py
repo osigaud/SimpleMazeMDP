@@ -47,7 +47,7 @@ def show_videos(video_path: str = "", prefix: str = "") -> None:
         mp4_video = str(avi).replace("avi", "mp4")
         # Convert
         if not os.path.isfile(mp4_video):
-            os.system(f"ffmpeg -i {avi} -c:v copy {mp4_video}")
+            os.system(f"ffmpeg -i {avi} -vcodec libx264 {mp4_video}")
 
 
     for mp4 in Path(video_path).glob(f"{prefix}*.mp4"):
