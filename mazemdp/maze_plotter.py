@@ -105,11 +105,14 @@ class MazePlotter:
 
         self.axes_history[-1].add_table(self.table_history[-1])
 
-    def new_render(self, title):  # initializes the plot by creating its basic components (figure, axis, agent patch and table)
-        # a trace of these components is stored so that the old outputs will last on the notebook
-        # when a new rendering is performed
+    def new_render(self, title):
+        """
+        initializes the plot by creating its basic components (figure, axis, agent patch and table)
+        a trace of these components is stored so that the old outputs will last on the notebook
+        when a new rendering is performed
+        """
+        self.figure_history.append(plt.figure(title, figsize=(self.figW, self.figH)))
         plt.title(title)
-        self.figure_history.append(plt.figure(figsize=(self.figW, self.figH)))
         self.axes_history.append(self.figure_history[-1].add_subplot(111))
         self.table_history.append(Table(self.axes_history[-1], bbox=[0, 0, 1, 1]))
         self.agent_patch_history.append(mpatches.Ellipse((-1, -1), 0.06, 0.085, ec="none", fc="dodgerblue", alpha=0.6))
