@@ -47,7 +47,8 @@ def show_videos(video_path: str = "", prefix: str = "") -> None:
         mp4_video = str(avi).replace("avi", "mp4")
         # Convert
         if not os.path.isfile(mp4_video):
-            os.system(f"ffmpeg -i {avi} -vcodec libx264 {mp4_video}")
+            print(f"Converting {avi}")
+            os.system(f"ffmpeg -i {avi} -c:v libx264 -crf 19 {mp4_video}")
 
 
     for mp4 in Path(video_path).glob(f"{prefix}*.mp4"):
@@ -239,7 +240,7 @@ class MazePlotter:
             if self.video_writer is None:
                 width, height, _ = image.shape
                 codec = cv2.VideoWriter_fourcc(*"MJPG")
-                fps = os.environ.get("VIDEO_FPS", 3)
+                fps = os.environ.get("VIDEO_FPS", 1)
                 self.video_writer = cv2.VideoWriter(f"images/{self.video_name}", codec, fps, (width, height))
             image = image[:, :, :3]  # remove alpha
             self.video_writer.write(image[:, :, ::-1])  # convert to BGR
