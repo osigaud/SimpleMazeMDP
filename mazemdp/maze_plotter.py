@@ -1,16 +1,15 @@
-'''
+"""
 Author: Olivier Sigaud
-'''
+"""
 import os
 
-import numpy as np
-import matplotlib
-# matplotlib.use('Agg') # change backend to retrieve images
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
+# import matplotlib.animation as animation
 import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.table import Table
-from mazemdp.toolbox import N, S, E, W
+
+from mazemdp.toolbox import E, N, S, W
 
 # ------------------- plot functions for a maze like environment ----------------#
 
@@ -70,6 +69,7 @@ def qarrow_params(width, height, i, j, action):
     else:
         return [x, y, 0.0, 0.0]
 
+
 # -------------------------------------------------------------------------------#
 # maze_mdp plot, used to plot the agent in its environment while processing the V/Q function and policy
 # it can also create videos given a list of V/Q values and a list of policies
@@ -101,7 +101,7 @@ class MazePlotter:
                     color[0] = color[1] = color[2] = 0
                 else:
                     color[0] = color[1] = color[2] = 1
-                self.table_history[-1].add_cell(j, i, width, height, facecolor=color, text='', loc='center')
+                self.table_history[-1].add_cell(j, i, width, height, facecolor=color, text="", loc="center")
 
         self.axes_history[-1].add_table(self.table_history[-1])
 
@@ -116,17 +116,19 @@ class MazePlotter:
         self.axes_history[-1].add_patch(self.agent_patch_history[-1])
         self.init_table()
 
-    def render(self, agent_state=-1, v=None, policy=None, stochastic=False, title='No Title'):  # updates the values of the table
+    def render(
+        self, agent_state=-1, v=None, policy=None, stochastic=False, title="No Title"
+    ):  # updates the values of the table
         # and the agent position and current policy
         # some of these components may not show depending on the parameters given when calling this function
         if len(self.figure_history) == 0:  # new plot
             self.new_render(title)
 
         if v is None:
-            v = []
+            v = np.array([])
 
         if policy is None:
-            policy = []
+            policy = np.array([])
 
         self.axes_history[-1].clear()
         self.axes_history[-1].add_table(self.table_history[-1])
@@ -147,9 +149,12 @@ class MazePlotter:
                         self.render_policy(policy, i, j, state)
 
         if agent_state >= 0:
-            x, y = coords(self.maze_attr.width, self.maze_attr.height,
-                          self.maze_attr.state_width[agent_state],
-                          self.maze_attr.state_height[agent_state])
+            x, y = coords(
+                self.maze_attr.width,
+                self.maze_attr.height,
+                self.maze_attr.state_width[agent_state],
+                self.maze_attr.state_height[agent_state],
+            )
             self.agent_patch_history[-1].center = x, y
             self.axes_history[-1].add_patch(self.agent_patch_history[-1])
 
@@ -206,10 +211,17 @@ class MazePlotter:
                     circle = mpatches.Circle((x0, y0), 0.08 / self.maze_attr.width, ec=arw_color, fc=arw_color, alpha=alpha)
                     self.axes_history[-1].add_patch(circle)
                 else:
-                    self.axes_history[-1].arrow(x0, y0, x, y, alpha=alpha,
-                                                head_width=0.12 / self.maze_attr.width,
-                                                head_length=0.12 / self.maze_attr.height,
-                                                fc=arw_color, ec=arw_color)
+                    self.axes_history[-1].arrow(
+                        x0,
+                        y0,
+                        x,
+                        y,
+                        alpha=alpha,
+                        head_width=0.12 / self.maze_attr.width,
+                        head_length=0.12 / self.maze_attr.height,
+                        fc=arw_color,
+                        ec=arw_color,
+                    )
 
     def render_pi(self, policy):
         for i in range(self.maze_attr.width):
@@ -218,19 +230,28 @@ class MazePlotter:
                 self.render_policy(policy, i, j, state)
         self.figure_history[-1].canvas.draw()
         self.figure_history[-1].canvas.flush_events()
-        self.images.append(np.asarray(self.figure_history[-1].canvas.buffer_rgba()))
 
     def render_policy(self, policy, i, j, state):
         if not (state == -1 or state in self.terminal_states):
-            x0, y0, x, y, = arrow_params(self.maze_attr.width, self.maze_attr.height,
-                                         i, j, policy[state])
+            (
+                x0,
+                y0,
+                x,
+                y,
+            ) = arrow_params(self.maze_attr.width, self.maze_attr.height, i, j, policy[state])
             arw_color = "green"
             alpha = 0.6
-            self.axes_history[-1].arrow(x0, y0, x, y, alpha=alpha,
-                                        head_width=0.12 / self.maze_attr.width,
-                                        head_length=0.12 / self.maze_attr.height,
-                                        fc=arw_color,
-                                        ec=arw_color)
+            self.axes_history[-1].arrow(
+                x0,
+                y0,
+                x,
+                y,
+                alpha=alpha,
+                head_width=0.12 / self.maze_attr.width,
+                head_length=0.12 / self.maze_attr.height,
+                fc=arw_color,
+                ec=arw_color,
+            )
 
     def render_stochastic_policy(self, q, policy, i, j, state):
         color = np.zeros(3)
@@ -251,11 +272,9 @@ class MazePlotter:
             norm_q = pos__q / (np.sum(pos__q) - (list(pos__q).count(qmax) * qmax) + 0.1)
 
             for action in range(len(q[state])):
-                x0, y0, x, y = qarrow_params(self.maze_attr.width,
-                                             self.maze_attr.height, i, j, action)
+                x0, y0, x, y = qarrow_params(self.maze_attr.width, self.maze_attr.height, i, j, action)
 
-                q_x, q_y = qvalue_params(self.maze_attr.width,
-                                         self.maze_attr.height, i, j, action)
+                q_x, q_y = qvalue_params(self.maze_attr.width, self.maze_attr.height, i, j, action)
                 arw_color = "green"
                 alpha = 0.9
                 qmax = np.max(q[state])
@@ -272,8 +291,9 @@ class MazePlotter:
                     circle = mpatches.Circle((x0, y0), 0.02, ec=arw_color, fc=arw_color, alpha=alpha)
                     self.axes_history[-1].add_patch(circle)
                 else:
-                    self.axes_history[-1].arrow(x0, y0, x, y, alpha=alpha,
-                                                head_width=0.03, head_length=0.03, fc=arw_color, ec=arw_color)
+                    self.axes_history[-1].arrow(
+                        x0, y0, x, y, alpha=alpha, head_width=0.03, head_length=0.03, fc=arw_color, ec=arw_color
+                    )
 
     def save_fig(self, title):
         self.figure_history[-1].savefig(title)
