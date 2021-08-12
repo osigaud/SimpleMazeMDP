@@ -240,7 +240,7 @@ class MazePlotter:
             if self.video_writer is None:
                 width, height, _ = image.shape
                 codec = cv2.VideoWriter_fourcc(*"MJPG")
-                fps = os.environ.get("VIDEO_FPS", 3)
+                fps = int(os.environ.get("VIDEO_FPS", 3))
                 self.video_writer = cv2.VideoWriter(f"images/{self.video_name}", codec, fps, (width, height))
             image = image[:, :, :3]  # remove alpha
             self.video_writer.write(image[:, :, ::-1])  # convert to BGR
