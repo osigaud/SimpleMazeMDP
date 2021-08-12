@@ -25,7 +25,7 @@ from mazemdp.toolbox import E, N, S, W
 
 try:
     import google.colab
-    os.environ["COLAB_NOTEBOOK"] = True
+    os.environ["COLAB_NOTEBOOK"] = "True"
 except ImportError:
     pass
 
