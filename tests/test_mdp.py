@@ -6,6 +6,7 @@ from mazemdp.toolbox import egreedy_loc
 
 np.random.seed(0)
 
+
 def test_maze():
     chrono = Chrono()
     mdp = create_random_maze(5, 5, 0.2, hit=True)
@@ -34,6 +35,7 @@ def test_maze_visu():
     # import matplotlib.pyplot as plt
     # plt.ioff()
     # plt.show()
+
 
 def test_step():
     mdp = create_random_maze(5, 5, 0.2)

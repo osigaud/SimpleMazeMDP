@@ -3,7 +3,19 @@ Author: Olivier Sigaud
 """
 import os
 
-# import matplotlib.animation as animation
+try:
+    import cv2
+except ImportError:
+    cv2 = None
+import matplotlib
+
+# Force backend
+if os.environ.get("PLOT_BACKEND"):
+    matplotlib.use(os.environ.get("PLOT_BACKEND"))
+print(f"Matplotlib backend: {matplotlib.get_backend()}")
+import base64
+from pathlib import Path
+
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,7 +23,36 @@ from matplotlib.table import Table
 
 from mazemdp.toolbox import E, N, S, W
 
+try:
+    import google.colab
+    os.environ["COLAB_NOTEBOOK"] = True
+except ImportError:
+    pass
+
 # ------------------- plot functions for a maze like environment ----------------#
+
+
+def show_videos(video_path: str = "", prefix: str = "") -> None:
+    """
+    Taken from https://github.com/eleurent/highway-env
+
+    :param video_path: Path to the folder containing videos
+    :param prefix: Filter the video, showing only the only starting with this prefix
+    """
+    from IPython import display as ipythondisplay
+
+    html = []
+    for mp4 in Path(video_path).glob(f"{prefix}*.avi"):
+        video_b64 = base64.b64encode(mp4.read_bytes())
+        html.append(
+            """<video alt="{}" autoplay
+                    loop controls style="height: 400px;">
+                    <source src="data:video/mp4;base64,{}" type="video/mp4" />
+                </video>""".format(
+                mp4, video_b64.decode("ascii")
+            )
+        )
+    ipythondisplay.display(ipythondisplay.HTML(data="<br>".join(html)))
 
 
 def coords(width, height, i, j):
@@ -76,10 +117,12 @@ def qarrow_params(width, height, i, j, action):
 
 
 class MazePlotter:
-    def __init__(self, maze):  # maze defined in the mdp notebook
+    def __init__(self, maze, using_notebook=bool(os.environ.get("COLAB_NOTEBOOK", False))):  # maze defined in the mdp notebook
         self.maze_attr = maze
         self.terminal_states = maze.terminal_states
+        # if not using_notebook:
         plt.ion()
+        self.using_notebook = using_notebook
         self.figW = self.maze_attr.width
         self.figH = self.maze_attr.height
         self.figure_history = []
@@ -87,6 +130,8 @@ class MazePlotter:
         self.table_history = []
         self.agent_patch_history = []
         self.image_idx = 0
+        self.video_writer = None
+        self.video_name = ""
         os.makedirs("images", exist_ok=True)
 
     def init_table(self):  # the states of the mdp are drawn in a matplotlib table, this function creates this table
@@ -118,6 +163,10 @@ class MazePlotter:
         self.agent_patch_history.append(mpatches.Ellipse((-1, -1), 0.06, 0.085, ec="none", fc="dodgerblue", alpha=0.6))
         self.axes_history[-1].add_patch(self.agent_patch_history[-1])
         self.init_table()
+        self.video_name = f"{title.replace(' ', '')}.avi"
+        if self.video_writer is not None:
+            self.video_writer.release()
+            self.video_writer = None
 
     def render(
         self,
@@ -170,8 +219,23 @@ class MazePlotter:
         plt.subplots_adjust(left=0.2, bottom=0.2)
         plt.xticks([])
         plt.yticks([])
+        plt.tight_layout()
         self.figure_history[-1].canvas.draw()
         self.figure_history[-1].canvas.flush_events()
+
+        if self.using_notebook:
+            # Get image
+            buf = self.figure_history[-1].canvas.buffer_rgba()
+            image = np.asarray(buf)
+            # Record video
+            if self.video_writer is None:
+                width, height, _ = image.shape
+                codec = cv2.VideoWriter_fourcc(*"MJPG")
+                fps = os.environ.get("VIDEO_FPS", 3)
+                self.video_writer = cv2.VideoWriter(f"images/{self.video_name}", codec, fps, (width, height))
+            image = image[:, :, :3]  # remove alpha
+            self.video_writer.write(image[:, :, ::-1])  # convert to BGR
+
         # Save image
         if save_images:
             self.figure_history[-1].savefig(f"images/{self.image_idx}.png")

@@ -18,7 +18,7 @@ setup(
     # Needed to actually package something
     packages=["mazemdp"],
     # Needed for dependencies
-    install_requires=["numpy", "plotly>=5.1.0"],
+    install_requires=["numpy", "opencv-python"],
     # *strongly* suggested for sharing
     version=f"{__version__}.dev0+{hash}",
     # The license can be anything you like
