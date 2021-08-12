@@ -6,6 +6,7 @@ __pycache__/
 htmlcov/
 .pytype/
 images/
+videos/
 
 # C extensions
 *.so

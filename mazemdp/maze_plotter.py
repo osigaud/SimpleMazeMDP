@@ -141,7 +141,7 @@ class MazePlotter:
         self.image_idx = 0
         self.video_writer = None
         self.video_name = ""
-        os.makedirs("images", exist_ok=True)
+        os.makedirs("videos", exist_ok=True)
 
     def init_table(self):  # the states of the mdp are drawn in a matplotlib table, this function creates this table
 
@@ -247,7 +247,7 @@ class MazePlotter:
 
         # Save image
         if save_images:
-            self.figure_history[-1].savefig(f"images/{self.image_idx}.png")
+            self.figure_history[-1].savefig(f"videos/{self.image_idx}.png")
             self.image_idx += 1
 
     def cell_render_v(self, v, i, j, state):
