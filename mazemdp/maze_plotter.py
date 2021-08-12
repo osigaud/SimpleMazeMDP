@@ -117,7 +117,13 @@ class MazePlotter:
         self.init_table()
 
     def render(
-        self, agent_state=-1, v=None, policy=None, stochastic=False, title="No Title"
+        self,
+        agent_state=-1,
+        v=None,
+        policy=None,
+        stochastic=False,
+        title="No Title",
+        save_images=False,
     ):  # updates the values of the table
         # and the agent position and current policy
         # some of these components may not show depending on the parameters given when calling this function
@@ -164,8 +170,9 @@ class MazePlotter:
         self.figure_history[-1].canvas.draw()
         self.figure_history[-1].canvas.flush_events()
         # Save image
-        self.figure_history[-1].savefig(f"images/{self.image_idx}.png")
-        self.image_idx += 1
+        if save_images:
+            self.figure_history[-1].savefig(f"images/{self.image_idx}.png")
+            self.image_idx += 1
 
     def cell_render_v(self, v, i, j, state):
         color = np.zeros(3)
@@ -233,12 +240,7 @@ class MazePlotter:
 
     def render_policy(self, policy, i, j, state):
         if not (state == -1 or state in self.terminal_states):
-            (
-                x0,
-                y0,
-                x,
-                y,
-            ) = arrow_params(self.maze_attr.width, self.maze_attr.height, i, j, policy[state])
+            x0, y0, x, y = arrow_params(self.maze_attr.width, self.maze_attr.height, i, j, policy[state])
             arw_color = "green"
             alpha = 0.6
             self.axes_history[-1].arrow(

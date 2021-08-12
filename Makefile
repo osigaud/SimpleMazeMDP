@@ -1,5 +1,8 @@
 SHELL=/bin/bash
-LINT_PATHS=mazemdp/ *.py
+LINT_PATHS=mazemdp/ *.py tests/
+
+pytest:
+	python3 -m pytest --cov-config .coveragerc --cov-report html --cov-report term --cov=. -v
 
 type:
 	pytype -j auto
