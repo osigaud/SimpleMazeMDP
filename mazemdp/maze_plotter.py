@@ -42,7 +42,15 @@ def show_videos(video_path: str = "", prefix: str = "") -> None:
     from IPython import display as ipythondisplay
 
     html = []
-    for mp4 in Path(video_path).glob(f"{prefix}*.avi"):
+
+    for avi in Path(video_path).glob(f"{prefix}*.avi"):
+        mp4_video = str(avi).replace("avi", "mp4")
+        # Convert
+        if not os.path.isfile(mp4_video):
+            os.system(f"ffmpeg -i {avi} -c:v copy {mp4_video}")
+
+
+    for mp4 in Path(video_path).glob(f"{prefix}*.mp4"):
         video_b64 = base64.b64encode(mp4.read_bytes())
         html.append(
             """<video alt="{}" autoplay
