@@ -2,17 +2,20 @@ import numpy as np
 
 from mazemdp import create_random_maze
 from mazemdp.chrono import Chrono
+from mazemdp.toolbox import egreedy_loc
+
+np.random.seed(0)
 
 def test_maze():
     chrono = Chrono()
-    mdp = create_random_maze(10, 10, 0.2, hit=True)
+    mdp = create_random_maze(5, 5, 0.2, hit=True)
     random_policy = np.random.randint(len(mdp.action_space.actions), size=(mdp.nb_states,))
     random_value = np.random.random(size=(mdp.nb_states,))
     chrono.stop()
 
 
 def test_maze_visu():
-    mdp = create_random_maze(10, 10, 0.2)
+    mdp = create_random_maze(5, 5, 0.2)
     mdp.new_render("Test visu value")
     for _ in range(3):
         random_value = np.random.random(size=(mdp.nb_states,))
@@ -31,3 +34,16 @@ def test_maze_visu():
     # import matplotlib.pyplot as plt
     # plt.ioff()
     # plt.show()
+
+def test_step():
+    mdp = create_random_maze(5, 5, 0.2)
+    x = mdp.reset(uniform=True)
+    done = mdp.done()
+    random_policy = np.random.randint(len(mdp.action_space.actions), size=(mdp.nb_states,))
+    random_value = np.random.random(size=(mdp.nb_states,))
+    mdp.new_render("Test step")
+
+    while not done:
+        # Show agent
+        mdp.render(random_value, random_policy)
+        x, _, done, _ = mdp.step(egreedy_loc(random_policy[x], mdp.action_space.size, epsilon=0.2))
