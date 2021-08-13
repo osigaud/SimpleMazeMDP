@@ -24,7 +24,8 @@ from matplotlib.table import Table
 from mazemdp.toolbox import E, N, S, W
 
 try:
-    import google.colab
+    import google.colab  # noqa: F401
+
     os.environ["COLAB_NOTEBOOK"] = "True"
 except ImportError:
     pass
@@ -49,7 +50,6 @@ def show_videos(video_path: str = "", prefix: str = "") -> None:
         if not os.path.isfile(mp4_video):
             print(f"Converting {avi}")
             os.system(f"ffmpeg -i {avi} -c:v libx264 -crf 19 {mp4_video}")
-
 
     for mp4 in Path(video_path).glob(f"{prefix}*.mp4"):
         video_b64 = base64.b64encode(mp4.read_bytes())
@@ -238,7 +238,7 @@ class MazePlotter:
             image = np.asarray(buf)
             # Record video
             if self.video_writer is None:
-                width, height, _ = image.shape
+                height, width, _ = image.shape
                 codec = cv2.VideoWriter_fourcc(*"MJPG")
                 fps = int(os.environ.get("VIDEO_FPS", 3))
                 self.video_writer = cv2.VideoWriter(f"{self.video_folder}/{self.video_name}", codec, fps, (width, height))

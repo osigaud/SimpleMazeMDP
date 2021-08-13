@@ -7,16 +7,14 @@ from mazemdp.toolbox import egreedy_loc
 np.random.seed(0)
 
 
-def test_maze():
+def test_chrono():
     chrono = Chrono()
     mdp = create_random_maze(5, 5, 0.2, hit=True)
-    random_policy = np.random.randint(len(mdp.action_space.actions), size=(mdp.nb_states,))
-    random_value = np.random.random(size=(mdp.nb_states,))
     chrono.stop()
 
 
 def test_maze_visu():
-    mdp = create_random_maze(5, 5, 0.2)
+    mdp = create_random_maze(4, 5, 0.2)
     mdp.new_render("Test visu value")
     for _ in range(3):
         random_value = np.random.random(size=(mdp.nb_states,))
@@ -32,13 +30,9 @@ def test_maze_visu():
         random_q_value = np.random.random(size=(mdp.nb_states, mdp.action_space.size))
         mdp.render(random_q_value, title="Test visu q-value")
 
-    # import matplotlib.pyplot as plt
-    # plt.ioff()
-    # plt.show()
-
 
 def test_step():
-    mdp = create_random_maze(5, 5, 0.2)
+    mdp = create_random_maze(5, 4, 0.2)
     x = mdp.reset(uniform=True)
     done = mdp.done()
     random_policy = np.random.randint(len(mdp.action_space.actions), size=(mdp.nb_states,))
