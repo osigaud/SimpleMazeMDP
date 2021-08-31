@@ -2,6 +2,8 @@
 
 This repository contains code to provide a simple Maze environment used as example MDP for tabular dynamic programming and reinforcement learning labs.
 
+If you want to do the corresponding labs, you need a Google account. Then you can copy-paste the [dynamic programming colab](https://colab.research.google.com/drive/1FpI-h_q-Iq3hBnmRjRUUwhDDK7TtQEVz) and the [reinforcement learning colab](https://colab.research.google.com/drive/1o4TnFGwgeN1e1DBrLRANj7Rj1_MTIkDJ).
+
 ## Documentation ##
 
 ### MDPs and mazes ###
