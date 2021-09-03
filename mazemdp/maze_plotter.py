@@ -68,8 +68,8 @@ def coords(width, height, i, j):
     # processes the starting position of the arrows
     # i is the width
     # j is the height
-    x = 0.15 - 0.01 * width + i / width
-    y = 0.8 + 0.02 * height - j / height
+    x = 0.15 - 0.16 / width + i / width
+    y = 0.8 + 0.32 / height - j / height
     return x, y
 
 
@@ -102,22 +102,6 @@ def qvalue_params(height, width, i, j, action):
         return [x - 0.24 / width, y]
     else:
         return [x, y]
-
-
-def qarrow_params(width, height, i, j, action):
-    # processes the starting position of the arrows
-    x, y = coords(width, height, i, j)
-
-    if action == N:
-        return [x, y + 0.12 / height, 0.0, 0.08 / height]
-    elif action == S:
-        return [x, y - 0.12 / height, 0.0, -0.08 / height]
-    elif action == E:
-        return [x + 0.12 / width, y, 0.02 / width, 0.0]
-    elif action == W:
-        return [x - 0.12 / width, y, -0.02 / width, 0.0]
-    else:
-        return [x, y, 0.0, 0.0]
 
 
 # -------------------------------------------------------------------------------#
