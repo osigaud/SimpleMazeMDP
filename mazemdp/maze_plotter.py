@@ -69,7 +69,7 @@ def coords(width, height, i, j):
     # i is the width
     # j is the height
     x = 0.15 - 0.01 * width + i / width
-    y = 0.1 + 0.02 * height - j / height
+    y = 0.8 + 0.02 * height - j / height
     return x, y
 
 
