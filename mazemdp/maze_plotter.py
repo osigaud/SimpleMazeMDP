@@ -79,13 +79,13 @@ def arrow_params(width, height, i, j, action):
     x, y = coords(width, height, i, j)
 
     if action == N:
-        return [x, y + 0.02, 0.0, 0.04]
+        return [x, y + 0.02, 0.0, 0.16 / height]
     elif action == S:
-        return [x, y - 0.02, 0.0, -0.04]
+        return [x, y - 0.02, 0.0, -0.16 / height]
     elif action == E:
-        return [x + 0.04, y, 0.02, 0.0]
+        return [x + 0.04, y, 0.08 / width, 0.0]
     elif action == W:
-        return [x - 0.04, y, -0.02, 0.0]
+        return [x - 0.04, y, -0.08 / width, 0.0]
     else:
         return [x, y, 0.0, 0.0]
 
