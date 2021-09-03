@@ -69,7 +69,7 @@ def coords(width, height, i, j):
     # i is the width
     # j is the height
     x = (0.44 + i) / width
-    # y = 0.86 - j / height
+    # y = 0.88 - j / height
     y = 0.8 + 0.32 / height - j / height
     return x, y
 
@@ -276,7 +276,7 @@ class MazePlotter:
                     alpha = norm_q[action]
 
                 if x == 0 and y == 0:
-                    circle = mpatches.Circle((x0, y0), 0.08 / self.maze_attr.width, ec=arw_color, fc=arw_color, alpha=alpha)
+                    circle = mpatches.Circle((x0, y0), 0.04, ec=arw_color, fc=arw_color, alpha=alpha)
                     self.axes_history[-1].add_patch(circle)
                 else:
                     self.axes_history[-1].arrow(
@@ -285,8 +285,8 @@ class MazePlotter:
                         x,
                         y,
                         alpha=alpha,
-                        head_width=0.12 / self.maze_attr.width,
-                        head_length=0.12 / self.maze_attr.height,
+                        head_width=0.03,
+                        head_length=0.03,
                         fc=arw_color,
                         ec=arw_color,
                     )
@@ -310,8 +310,8 @@ class MazePlotter:
                 x,
                 y,
                 alpha=alpha,
-                head_width=0.12 / self.maze_attr.width,
-                head_length=0.12 / self.maze_attr.height,
+                head_width=0.03,
+                head_length=0.03,
                 fc=arw_color,
                 ec=arw_color,
             )
