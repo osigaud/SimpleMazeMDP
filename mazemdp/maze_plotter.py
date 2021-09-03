@@ -280,7 +280,7 @@ class MazePlotter:
 
             for action in range(len(q[state])):
 
-                x0, y0, x, y = qarrow_params(self.maze_attr.width, self.maze_attr.height, i, j, action)
+                x0, y0, x, y = arrow_params(self.maze_attr.width, self.maze_attr.height, i, j, action)
 
                 arw_color = "green"
                 alpha = 0.9
@@ -350,7 +350,7 @@ class MazePlotter:
             norm_q = pos__q / (np.sum(pos__q) - (list(pos__q).count(qmax) * qmax) + 0.1)
 
             for action in range(len(q[state])):
-                x0, y0, x, y = qarrow_params(self.maze_attr.width, self.maze_attr.height, i, j, action)
+                x0, y0, x, y = arrow_params(self.maze_attr.width, self.maze_attr.height, i, j, action)
 
                 q_x, q_y = qvalue_params(self.maze_attr.width, self.maze_attr.height, i, j, action)
                 arw_color = "green"
