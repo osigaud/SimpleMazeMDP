@@ -131,9 +131,6 @@ class MazePlotter:
 
     def init_table(self):  # the states of the mdp are drawn in a matplotlib table, this function creates this table
 
-        width = 0.1
-        height = 0.2
-
         for i in range(self.maze_attr.width):
             for j in range(self.maze_attr.height):
                 color = np.zeros(3)
@@ -141,7 +138,7 @@ class MazePlotter:
                     color[0] = color[1] = color[2] = 0
                 else:
                     color[0] = color[1] = color[2] = 1
-                self.table_history[-1].add_cell(j, i, width, height, facecolor=color, text="", loc="center")
+                self.table_history[-1].add_cell(j, i, 0.1, 0.2, facecolor=color, text="", loc="center")
 
         self.axes_history[-1].add_table(self.table_history[-1])
 
@@ -223,10 +220,10 @@ class MazePlotter:
             image = np.asarray(buf)
             # Record video
             if self.video_writer is None:
-                height, width, _ = image.shape
+                loc_height, loc_width, _ = image.shape
                 codec = cv2.VideoWriter_fourcc(*"MJPG")
                 fps = int(os.environ.get("VIDEO_FPS", 3))
-                self.video_writer = cv2.VideoWriter(f"{self.video_folder}/{self.video_name}", codec, fps, (width, height))
+                self.video_writer = cv2.VideoWriter(f"{self.video_folder}/{self.video_name}", codec, fps, (loc_width, loc_height))
             image = image[:, :, :3]  # remove alpha
             self.video_writer.write(image[:, :, ::-1])  # convert to BGR
 
@@ -285,8 +282,8 @@ class MazePlotter:
                         x,
                         y,
                         alpha=alpha,
-                        head_width=0.03,
-                        head_length=0.03,
+                        head_width=0.12 / self.maze_attr.width,
+                        head_length=0.12 / self.maze_attr.height,
                         fc=arw_color,
                         ec=arw_color,
                     )
@@ -310,8 +307,8 @@ class MazePlotter:
                 x,
                 y,
                 alpha=alpha,
-                head_width=0.03,
-                head_length=0.03,
+                head_width=0.12 / self.maze_attr.width,
+                head_length=0.12 / self.maze_attr.height,
                 fc=arw_color,
                 ec=arw_color,
             )
