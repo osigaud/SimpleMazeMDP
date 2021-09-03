@@ -90,8 +90,8 @@ def arrow_params(width, height, i, j, action):
         return [x, y, 0.0, 0.0]
 
 
-def qvalue_params(height, width, i, j, action):
-    x, y = coords(height, width, i, j)
+def qvalue_params(width, height, i, j, action):
+    x, y = coords(width, height, i, j)
 
     if action == N:
         return [x - 0.04 / width, y + 0.32 / height]
