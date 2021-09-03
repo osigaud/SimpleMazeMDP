@@ -68,10 +68,8 @@ def coords(width, height, i, j):
     # processes the starting position of the arrows
     # i is the width
     # j is the height
-    # x = 0.12 - 0.04 / width + i / width
-    y = 0.89 + 0.04 / height - j / height
     x = (0.44 + i) / width
-    # y = (3.52 - j) / height
+    y = 0.87 + 0.15 / height - j / height
     return x, y
 
 
