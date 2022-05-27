@@ -43,7 +43,7 @@ def check_navigability(mdp):
 def build_maze(width, height, walls, hit=False):
     ts = height * width - 1 - len(walls)
     maze = Maze(width, height, hit, walls=walls, terminal_states=[ts])  # Markov Decision Process definition
-    return maze.mdp
+    return maze.mdp, maze.nb_states
 
 
 def create_random_maze(width, height, ratio, hit=False):
@@ -57,9 +57,9 @@ def create_random_maze(width, height, ratio, hit=False):
     while not stop:
         walls = random.sample(range(size), int(n_walls))
 
-        mdp = build_maze(width, height, walls, hit=hit)
+        mdp, nb_states = build_maze(width, height, walls, hit=hit)
         stop = check_navigability(mdp)
-    return mdp
+    return mdp, nb_states
 
 
 class Maze:  # describes a maze-like environment
@@ -91,6 +91,7 @@ class Maze:  # describes a maze-like environment
         self.width = width
         self.height = height
         self.cells = np.zeros((width, height), int)
+        self.nb_states = height * width - len(walls)
 
         if walls is None:
             walls = []
