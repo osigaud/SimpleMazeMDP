@@ -18,7 +18,7 @@ setup(
     # Needed to actually package something
     packages=["mazemdp"],
     # Needed for dependencies
-    install_requires=["numpy", "opencv-python"],
+    install_requires=["numpy", "matplotlib"],
     # *strongly* suggested for sharing
     version=f"{__version__}.dev0+{hash}",
     # The license can be anything you like
