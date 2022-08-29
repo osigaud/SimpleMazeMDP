@@ -19,7 +19,7 @@ def check_navigability(mdp):
         v_old = v.copy()
 
         for x in range(mdp.nb_states):  # for each state x
-            # Compute the value of the state x for each action u of the MDP action space
+            # Compute the value of state x for each action u of the MDP action space
             v_temp = []
             for u in mdp.action_space.actions:
                 if x not in mdp.terminal_states:
@@ -31,7 +31,7 @@ def check_navigability(mdp):
                 else:  # if the state is final, then we only take the reward into account
                     v_temp.append(mdp.r[x, u])
 
-                    # Select the highest state value among those computed
+            # Select the highest state value among those computed
             v[x] = np.max(v_temp)
 
         # Test if convergence has been reached
