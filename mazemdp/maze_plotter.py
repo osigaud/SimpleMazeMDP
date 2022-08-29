@@ -65,17 +65,20 @@ def show_videos(video_path: str = "", prefix: str = "") -> None:
 
 
 def coords(width, height, i, j):
-    # processes the starting position of the arrows
-    # i is the width
-    # j is the height
+    """
+    processes the starting position of the arrows
+    i is the width
+    j is the height
+    """
     x = (0.44 + i) / width
-    # y = 0.88 - j / height
     y = 0.98 - 0.28 / height - j / height
     return x, y
 
 
 def arrow_params(width, height, i, j, action):
-    # processes the starting position of the arrows
+    """ 
+    processes the starting position of the arrows
+    """
     x, y = coords(width, height, i, j)
 
     if action == N:
@@ -106,11 +109,12 @@ def qvalue_params(width, height, i, j, action):
 
 
 # -------------------------------------------------------------------------------#
-# maze_mdp plot, used to plot the agent in its environment while processing the V/Q function and policy
-# it can also create videos given a list of V/Q values and a list of policies
-
 
 class MazePlotter:
+    """
+    maze_mdp plot, used to plot the agent in its environment while processing the V/Q function and policy
+    it can also create videos given a list of V/Q values and a list of policies
+    """
     def __init__(self, maze, using_notebook=bool(os.environ.get("COLAB_NOTEBOOK", False))):  # maze defined in the mdp notebook
         self.maze_attr = maze
         self.terminal_states = maze.terminal_states
@@ -129,7 +133,10 @@ class MazePlotter:
         self.video_folder = "videos"
         os.makedirs(self.video_folder, exist_ok=True)
 
-    def init_table(self):  # the states of the mdp are drawn in a matplotlib table, this function creates this table
+    def init_table(self):
+        """
+        the states of the mdp are drawn in a matplotlib table, this function creates this table
+        """
 
         for i in range(self.maze_attr.width):
             for j in range(self.maze_attr.height):
@@ -167,9 +174,13 @@ class MazePlotter:
         policy=None,
         stochastic=False,
         title="No Title",
-    ):  # updates the values of the table
-        # and the agent position and current policy
-        # some of these components may not show depending on the parameters given when calling this function
+    ):
+        """
+        updates the values of the table
+        and the agent position and current policy
+        some of these components may not show depending on the parameters given when calling this function
+        the agent state is set to None if we do not want to plot the agent
+        """
         if len(self.figure_history) == 0:  # new plot
             self.new_render(title)
 
