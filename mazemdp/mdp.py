@@ -126,7 +126,6 @@ class Mdp:
 
         if policy is None:
             policy = np.array([])
-        print("in mdp", self.has_state)
 
         if not self.has_state:
             self.plotter.render(v=v, agent_state=None, title="No Title")
