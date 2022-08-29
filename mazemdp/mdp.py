@@ -79,9 +79,8 @@ class Mdp:
     def done(self):  # returns True if the episode is over
         if self.last_action_achieved:
             return True
-        if (
-            self.current_state in self.terminal_states
-        ):  # done when a terminal state is reached
+        if self.current_state in self.terminal_states:
+            # done when a terminal state is reached
             # the terminal states are actually a set of states from which any action leads to an added imaginary state,
             # the "well", with a reward of 1. To know if the episode is over, we have to check
             # whether the agent is on one of these last states and performed the action that gives it its last reward
@@ -99,7 +98,10 @@ class Mdp:
 
         # the state reached when performing action u from state x is sampled
         # according to the discrete distribution self.P[x,u,:]
-        state = discreteProb(self.P[self.current_state, u, :])
+        if self.current_state in self.terminal_states:
+            next_state = self.current_state
+        else:
+            next_state = discreteProb(self.P[self.current_state, u, :])
 
         self.timestep += 1
 
@@ -108,10 +110,10 @@ class Mdp:
             "reward's noise value": noise,
         }  # can be used when debugging
 
-        self.current_state = state
+        self.current_state = next_state
         done = self.done()  # checks if the episode is over
 
-        return [state, reward, done, info]
+        return [next_state, reward, done, info]
 
     def new_render(
         self, title
