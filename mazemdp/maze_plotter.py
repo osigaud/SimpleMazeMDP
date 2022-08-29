@@ -179,11 +179,11 @@ class MazePlotter:
 
     def render(
         self,
-        agent_state=None,
         v=None,
         policy=None,
-        stochastic=False,
+        agent_state=None,
         title="No Title",
+        stochastic=False,
     ):
         """
         updates the values of the table
@@ -219,6 +219,7 @@ class MazePlotter:
                         self.render_policy(policy, i, j, state)
 
         if agent_state is not None:
+            print("in plotter", agent_state)
             x, y = coords(
                 self.maze_attr.width,
                 self.maze_attr.height,

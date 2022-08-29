@@ -26,7 +26,11 @@ class SimpleActionSpace:  # class describing the action space of the markov deci
         return self.actions[index]
 
 
-class Mdp:  # defines a Markov Decision Process
+class Mdp:
+    """
+    defines a Markov Decision Process
+    """
+
     def __init__(
         self,
         nb_states,
@@ -38,6 +42,7 @@ class Mdp:  # defines a Markov Decision Process
         gamma=0.9,
         terminal_states=None,
         timeout=50,
+        has_state=True,
     ):
         assert timeout > 10, "timeout too short:" + timeout
         self.nb_states = nb_states
@@ -45,7 +50,7 @@ class Mdp:  # defines a Markov Decision Process
             terminal_states = []
         self.terminal_states = terminal_states
         self.action_space = action_space
-        self.current_state = None  # current position of the agent in the maze, it is set by the reset() method
+        self.has_state = has_state
         self.timeout = timeout  # maximum length of an episode
         self.timestep = 0
         self.P0 = start_distribution  # distribution used to draw the first state of the agent, used in method reset()
@@ -121,12 +126,15 @@ class Mdp:  # defines a Markov Decision Process
 
         if policy is None:
             policy = np.array([])
+        print("in mdp", self.has_state)
 
-        if agent_pos is not None:
-            self.plotter.render(agent_state=agent_pos, v=v, title="No Title")
+        if not self.has_state:
+            self.plotter.render(v=v, agent_state=None, title="No Title")
+        elif agent_pos is not None:
+            self.plotter.render(v=v, agent_state=agent_pos, title="No Title")
         elif self.current_state is not None:
             self.plotter.render(
-                agent_state=self.current_state, v=v, policy=policy, title="No Title"
+                v=v, agent_state=self.current_state, policy=policy, title="No Title"
             )
         else:
             self.plotter.render(v=v, title="No Title")
