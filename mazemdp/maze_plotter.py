@@ -76,7 +76,7 @@ def coords(width, height, i, j):
 
 
 def arrow_params(width, height, i, j, action):
-    """ 
+    """
     processes the starting position of the arrows
     """
     x, y = coords(width, height, i, j)
@@ -110,12 +110,16 @@ def qvalue_params(width, height, i, j, action):
 
 # -------------------------------------------------------------------------------#
 
+
 class MazePlotter:
     """
     maze_mdp plot, used to plot the agent in its environment while processing the V/Q function and policy
     it can also create videos given a list of V/Q values and a list of policies
     """
-    def __init__(self, maze, using_notebook=bool(os.environ.get("COLAB_NOTEBOOK", False))):  # maze defined in the mdp notebook
+
+    def __init__(
+        self, maze, using_notebook=bool(os.environ.get("COLAB_NOTEBOOK", False))
+    ):  # maze defined in the mdp notebook
         self.maze_attr = maze
         self.terminal_states = maze.terminal_states
         # if not using_notebook:
@@ -145,7 +149,9 @@ class MazePlotter:
                     color[0] = color[1] = color[2] = 0
                 else:
                     color[0] = color[1] = color[2] = 1
-                self.table_history[-1].add_cell(j, i, 0.1, 0.2, facecolor=color, text="", loc="center")
+                self.table_history[-1].add_cell(
+                    j, i, 0.1, 0.2, facecolor=color, text="", loc="center"
+                )
 
         self.axes_history[-1].add_table(self.table_history[-1])
 
@@ -159,7 +165,11 @@ class MazePlotter:
         plt.title(title)
         self.axes_history.append(self.figure_history[-1].add_subplot(111))
         self.table_history.append(Table(self.axes_history[-1], bbox=[0, 0, 1, 1]))
-        self.agent_patch_history.append(mpatches.Ellipse((-1, -1), 0.06, 0.085, ec="none", fc="dodgerblue", alpha=0.6))
+        self.agent_patch_history.append(
+            mpatches.Ellipse(
+                (-1, -1), 0.06, 0.085, ec="none", fc="dodgerblue", alpha=0.6
+            )
+        )
         self.axes_history[-1].add_patch(self.agent_patch_history[-1])
         self.init_table()
         self.video_name = f"{title.replace(' ', '')}.avi"
@@ -234,7 +244,12 @@ class MazePlotter:
                 loc_height, loc_width, _ = image.shape
                 codec = cv2.VideoWriter_fourcc(*"MJPG")
                 fps = int(os.environ.get("VIDEO_FPS", 3))
-                self.video_writer = cv2.VideoWriter(f"{self.video_folder}/{self.video_name}", codec, fps, (loc_width, loc_height))
+                self.video_writer = cv2.VideoWriter(
+                    f"{self.video_folder}/{self.video_name}",
+                    codec,
+                    fps,
+                    (loc_width, loc_height),
+                )
             image = image[:, :, :3]  # remove alpha
             self.video_writer.write(image[:, :, ::-1])  # convert to BGR
 
@@ -253,10 +268,14 @@ class MazePlotter:
         if state == -1:
             color[0] = color[1] = color[2] = 0
         else:
-            color[0] = color[1] = color[2] = np.min([1 - np.max(q[state]) / (np.max(q) + 1), 1])
+            color[0] = color[1] = color[2] = np.min(
+                [1 - np.max(q[state]) / (np.max(q) + 1), 1]
+            )
 
         self.table_history[-1]._cells[(j, i)].set_facecolor(color)
-        self.table_history[-1]._cells[(j, i)]._text.set_text(np.round(np.max(q[state]), 2))
+        self.table_history[-1]._cells[(j, i)]._text.set_text(
+            np.round(np.max(q[state]), 2)
+        )
 
         if not (state == -1 or state in self.terminal_states):
             qmin = np.min(q[state])
@@ -268,7 +287,9 @@ class MazePlotter:
 
             for action in range(len(q[state])):
 
-                x0, y0, x, y = arrow_params(self.maze_attr.width, self.maze_attr.height, i, j, action)
+                x0, y0, x, y = arrow_params(
+                    self.maze_attr.width, self.maze_attr.height, i, j, action
+                )
 
                 arw_color = "green"
                 alpha = 0.9
@@ -279,7 +300,9 @@ class MazePlotter:
                     alpha = norm_q[action]
 
                 if x == 0 and y == 0:
-                    circle = mpatches.Circle((x0, y0), 0.04, ec=arw_color, fc=arw_color, alpha=alpha)
+                    circle = mpatches.Circle(
+                        (x0, y0), 0.04, ec=arw_color, fc=arw_color, alpha=alpha
+                    )
                     self.axes_history[-1].add_patch(circle)
                 else:
                     self.axes_history[-1].arrow(
@@ -304,7 +327,9 @@ class MazePlotter:
 
     def render_policy(self, policy, i, j, state):
         if not (state == -1 or state in self.terminal_states):
-            x0, y0, x, y = arrow_params(self.maze_attr.width, self.maze_attr.height, i, j, policy[state])
+            x0, y0, x, y = arrow_params(
+                self.maze_attr.width, self.maze_attr.height, i, j, policy[state]
+            )
             arw_color = "green"
             alpha = 0.6
             self.axes_history[-1].arrow(
@@ -324,10 +349,14 @@ class MazePlotter:
         if state in self.maze_attr.walls:
             color[0] = color[1] = color[2] = 0
         else:
-            color[0] = color[1] = color[2] = np.min([1 - np.max(q[state]) / (np.max(q) + 1), 1])
+            color[0] = color[1] = color[2] = np.min(
+                [1 - np.max(q[state]) / (np.max(q) + 1), 1]
+            )
 
         self.table_history[-1]._cells[(j, i)].set_facecolor(color)
-        self.table_history[-1]._cells[(j, i)]._text.set_text(np.round(np.max(q[state]), 2))
+        self.table_history[-1]._cells[(j, i)]._text.set_text(
+            np.round(np.max(q[state]), 2)
+        )
 
         if not (state == -1 or state in self.terminal_states):
             qmin = np.min(q[state])
@@ -338,9 +367,13 @@ class MazePlotter:
             norm_q = pos__q / (np.sum(pos__q) - (list(pos__q).count(qmax) * qmax) + 0.1)
 
             for action in range(len(q[state])):
-                x0, y0, x, y = arrow_params(self.maze_attr.width, self.maze_attr.height, i, j, action)
+                x0, y0, x, y = arrow_params(
+                    self.maze_attr.width, self.maze_attr.height, i, j, action
+                )
 
-                q_x, q_y = qvalue_params(self.maze_attr.width, self.maze_attr.height, i, j, action)
+                q_x, q_y = qvalue_params(
+                    self.maze_attr.width, self.maze_attr.height, i, j, action
+                )
                 arw_color = "green"
                 alpha = 0.9
                 qmax = np.max(q[state])
@@ -353,11 +386,21 @@ class MazePlotter:
                     alpha = norm_q[action]
 
                 if x == 0 and y == 0:
-                    circle = mpatches.Circle((x0, y0), 0.02, ec=arw_color, fc=arw_color, alpha=alpha)
+                    circle = mpatches.Circle(
+                        (x0, y0), 0.02, ec=arw_color, fc=arw_color, alpha=alpha
+                    )
                     self.axes_history[-1].add_patch(circle)
                 else:
                     self.axes_history[-1].arrow(
-                        x0, y0, x, y, alpha=alpha, head_width=0.03, head_length=0.03, fc=arw_color, ec=arw_color
+                        x0,
+                        y0,
+                        x,
+                        y,
+                        alpha=alpha,
+                        head_width=0.03,
+                        head_length=0.03,
+                        fc=arw_color,
+                        ec=arw_color,
                     )
 
     def save_fig(self, title):

@@ -42,7 +42,9 @@ def check_navigability(mdp):
 
 def build_maze(width, height, walls, hit=False):
     ts = height * width - 1 - len(walls)
-    maze = Maze(width, height, hit, walls=walls, terminal_states=[ts])  # Markov Decision Process definition
+    maze = Maze(
+        width, height, hit, walls=walls, terminal_states=[ts]
+    )  # Markov Decision Process definition
     return maze.mdp, maze.nb_states
 
 
@@ -114,9 +116,49 @@ class Maze:  # describes a maze-like environment
         self.state_width = []
         self.state_height = []
         # ##################### State Space ######################
+        self.init_states(width, height, cell, walls, state)
+
+        # ##################### Action Space ######################
+        self.action_space = SimpleActionSpace(
+            action_list=action_list, nactions=nb_actions
+        )
+
+        # ##################### Distribution Over Initial States ######################
+
+        start_distribution = np.zeros(
+            self.nb_states
+        )  # distribution over initial states
+
+        # supposed to be uniform
+        for state in start_states:
+            start_distribution[state] = 1.0 / len(start_states)
+
+        # ##################### Transition Matrix ######################
+        transition_matrix = self.init_transitions(hit)
+
+        if hit:
+            reward_matrix = self.reward_hit_walls()
+        else:
+            reward_matrix = self.simple_reward()
+
+        plotter = MazePlotter(self)  # renders the environment
+
+        self.mdp = Mdp(
+            self.nb_states,
+            self.action_space,
+            start_distribution,
+            transition_matrix,
+            reward_matrix,
+            plotter,
+            gamma=gamma,
+            terminal_states=terminal_states,
+            timeout=timeout,
+        )
+
+    def init_states(self, width, height, cell, walls, state):
         for i in range(width):
             for j in range(height):
-                if cell not in walls:  # or self.cells[i][j] in self.terminal_states):
+                if cell not in walls:
                     self.cells[i][j] = state
                     state = state + 1
                     self.state_width.append(i)
@@ -127,23 +169,16 @@ class Maze:  # describes a maze-like environment
 
         self.nb_states = state
 
-        # ##################### Action Space ######################
-        self.action_space = SimpleActionSpace(action_list=action_list, nactions=nb_actions)
+    def init_transitions(self, hit):
+        """
+        Init the transition matrix
+        a "well" state is added that only the terminal states can get into
+        """
 
-        # ##################### Distribution Over Initial States ######################
+        transition_matrix = np.empty(
+            (self.nb_states + 1, self.action_space.size, self.nb_states + 1)
+        )
 
-        start_distribution = np.zeros(self.nb_states)  # distribution over initial states
-
-        # supposed to be uniform
-        for state in start_states:
-            start_distribution[state] = 1.0 / len(start_states)
-
-        # ##################### Transition Matrix ######################
-
-        # a "well" state is added that only the terminal states can get into
-        transition_matrix = np.empty((self.nb_states + 1, self.action_space.size, self.nb_states + 1))
-
-        # Init the transition matrix
         transition_matrix[:, N, :] = np.zeros((self.nb_states + 1, self.nb_states + 1))
         transition_matrix[:, S, :] = np.zeros((self.nb_states + 1, self.nb_states + 1))
         transition_matrix[:, E, :] = np.zeros((self.nb_states + 1, self.nb_states + 1))
@@ -183,25 +218,7 @@ class Maze:  # describes a maze-like environment
         for s in self.terminal_states:
             transition_matrix[s, :, :] = 0
             transition_matrix[s, :, well] = 1
-
-        if hit:
-            reward_matrix = self.reward_hit_walls()
-        else:
-            reward_matrix = self.simple_reward()
-
-        plotter = MazePlotter(self)  # renders the environment
-
-        self.mdp = Mdp(
-            self.nb_states,
-            self.action_space,
-            start_distribution,
-            transition_matrix,
-            reward_matrix,
-            plotter,
-            gamma=gamma,
-            terminal_states=terminal_states,
-            timeout=timeout,
-        )
+        return transition_matrix
 
         # self.mdp = MyMdp(self.nb_states, self.action_space, start_distribution, transition_matrix, reward_matrix,
         #                plotter, proba_action=0.5, gamma=gamma, terminal_states=terminal_states, timeout=timeout)
@@ -210,32 +227,44 @@ class Maze:  # describes a maze-like environment
     def simple_reward(self):
         reward_matrix = np.zeros((self.nb_states, self.action_space.size))
         for s in self.terminal_states:
-            reward_matrix[s, :] = 1  # leaving a final state gets the agent a reward of 1
+            reward_matrix[
+                s, :
+            ] = 1  # leaving a final state gets the agent a reward of 1
         return reward_matrix
 
     # --------------------------------- Reward Matrix ---------------------------------
     def reward_hit_walls(self):
         reward_matrix = np.zeros((self.nb_states, self.action_space.size))
         for s in self.terminal_states:
-            reward_matrix[s, :] = 1  # leaving a final state gets the agent a reward of 1
+            reward_matrix[
+                s, :
+            ] = 1  # leaving a final state gets the agent a reward of 1
             for i in range(self.width):
                 for j in range(self.height):
                     state = self.cells[i][j]
                     if not state == -1:
 
                         # Reward Matrix when going north
-                        if j == 0 or self.cells[i][j - 1] == -1:  # highest cells + cells under a wall
+                        if (
+                            j == 0 or self.cells[i][j - 1] == -1
+                        ):  # highest cells + cells under a wall
                             reward_matrix[state, N] = -0.5
 
                         # Reward Matrix when going south
-                        if j == self.height - 1 or self.cells[i][j + 1] == -1:  # lowest cells + cells above a wall
+                        if (
+                            j == self.height - 1 or self.cells[i][j + 1] == -1
+                        ):  # lowest cells + cells above a wall
                             reward_matrix[state, S] = -0.5
 
                         # Reward Matrix when going east
-                        if i == self.width - 1 or self.cells[i + 1][j] == -1:  # cells on the left + left side of a wall
+                        if (
+                            i == self.width - 1 or self.cells[i + 1][j] == -1
+                        ):  # cells on the left + left side of a wall
                             reward_matrix[state, E] = -0.5
 
                         # Reward Matrix when going west
-                        if i == 0 or self.cells[i - 1][j] == -1:  # cells on the right + right side of a wall
+                        if (
+                            i == 0 or self.cells[i - 1][j] == -1
+                        ):  # cells on the right + right side of a wall
                             reward_matrix[state, W] = -0.5
             return reward_matrix

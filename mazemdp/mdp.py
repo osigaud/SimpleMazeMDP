@@ -45,7 +45,7 @@ class Mdp:  # defines a Markov Decision Process
             terminal_states = []
         self.terminal_states = terminal_states
         self.action_space = action_space
-        self.current_state = -1  # current position of the agent in the maze, it is set by the reset() method
+        self.current_state = None  # current position of the agent in the maze, it is set by the reset() method
         self.timeout = timeout  # maximum length of an episode
         self.timestep = 0
         self.P0 = start_distribution  # distribution used to draw the first state of the agent, used in method reset()
@@ -55,7 +55,9 @@ class Mdp:  # defines a Markov Decision Process
         self.gamma = gamma  # discount factor
         self.last_action_achieved = False  # used to tell whether the last state has been reached or not (see done())
 
-    def reset(self, uniform=False):  # initializes an episode and returns the state of the agent
+    def reset(
+        self, uniform=False
+    ):  # initializes an episode and returns the state of the agent
         # if uniform is set to False, the first state is drawn according to the P0 distribution,
         # else it is drawn from a uniform distribution over all the states except for walls
 
@@ -72,7 +74,9 @@ class Mdp:  # defines a Markov Decision Process
     def done(self):  # returns True if the episode is over
         if self.last_action_achieved:
             return True
-        if self.current_state in self.terminal_states:  # done when a terminal state is reached
+        if (
+            self.current_state in self.terminal_states
+        ):  # done when a terminal state is reached
             # the terminal states are actually a set of states from which any action leads to an added imaginary state,
             # the "well", with a reward of 1. To know if the episode is over, we have to check
             # whether the agent is on one of these last states and performed the action that gives it its last reward
@@ -104,11 +108,13 @@ class Mdp:  # defines a Markov Decision Process
 
         return [state, reward, done, info]
 
-    def new_render(self, title):  # initializes a new environment rendering (a plot defined by a figure, an axis...)
+    def new_render(
+        self, title
+    ):  # initializes a new environment rendering (a plot defined by a figure, an axis...)
         self.plotter.new_render(title)
 
     def render(
-        self, v=None, policy=None, agent_pos=-1, title="No Title"
+        self, v=None, policy=None, agent_pos=None, title="No Title"
     ):  # outputs the agent in the environment with values V (or Q)
         if v is None:
             v = np.array([])
@@ -116,10 +122,12 @@ class Mdp:  # defines a Markov Decision Process
         if policy is None:
             policy = np.array([])
 
-        if agent_pos > -1:
+        if agent_pos is not None:
             self.plotter.render(agent_state=agent_pos, v=v, title="No Title")
-        elif self.current_state > -1:  # and not self.last_action_achieved:
-            self.plotter.render(agent_state=self.current_state, v=v, policy=policy, title="No Title")
+        elif self.current_state is not None:
+            self.plotter.render(
+                agent_state=self.current_state, v=v, policy=policy, title="No Title"
+            )
         else:
             self.plotter.render(v=v, title="No Title")
 
