@@ -59,6 +59,7 @@ class Mdp:
         self.plotter = plotter  # used to plot the maze
         self.gamma = gamma  # discount factor
         self.last_action_achieved = False  # used to tell whether the last state has been reached or not (see done())
+        self.current_state = None
 
     def reset(
         self, uniform=False
