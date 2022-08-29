@@ -162,7 +162,7 @@ class MazePlotter:
 
     def render(
         self,
-        agent_state=-1,
+        agent_state=None,
         v=None,
         policy=None,
         stochastic=False,
@@ -197,7 +197,7 @@ class MazePlotter:
                     else:
                         self.render_policy(policy, i, j, state)
 
-        if agent_state >= 0:
+        if agent_state is not None:
             x, y = coords(
                 self.maze_attr.width,
                 self.maze_attr.height,
@@ -226,11 +226,6 @@ class MazePlotter:
                 self.video_writer = cv2.VideoWriter(f"{self.video_folder}/{self.video_name}", codec, fps, (loc_width, loc_height))
             image = image[:, :, :3]  # remove alpha
             self.video_writer.write(image[:, :, ::-1])  # convert to BGR
-
-        # Save image
-        # if save_images:
-        #     self.figure_history[-1].savefig(f"{self.video_folder}/{self.image_idx}.png")
-        #     self.image_idx += 1
 
     def cell_render_v(self, v, i, j, state):
         color = np.zeros(3)
