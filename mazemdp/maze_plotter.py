@@ -217,7 +217,7 @@ class MazePlotter:
                     else:
                         self.render_policy(policy, i, j, state)
 
-        if agent_state is not None:
+        if agent_state is not None and len(self.maze_attr.state_width) > agent_state:
             x, y = coords(
                 self.maze_attr.width,
                 self.maze_attr.height,

@@ -58,7 +58,6 @@ class Mdp:
         self.r = reward_matrix
         self.plotter = plotter  # used to plot the maze
         self.gamma = gamma  # discount factor
-        self.last_action_achieved = False  # used to tell whether the last state has been reached or not (see done())
         self.current_state = None
 
     def reset(
@@ -78,14 +77,8 @@ class Mdp:
         return self.current_state
 
     def done(self):  # returns True if the episode is over
-        if self.last_action_achieved:
-            return True
         if self.current_state in self.terminal_states:
-            # done when a terminal state is reached
-            # the terminal states are actually a set of states from which any action leads to an added imaginary state,
-            # the "well", with a reward of 1. To know if the episode is over, we have to check
-            # whether the agent is on one of these last states and performed the action that gives it its last reward
-            self.last_action_achieved = True
+            return True
         return self.timestep == self.timeout  # done when timeout reached
 
     def step(self, u, deviation=0):  # performs a step forward in the environment,
