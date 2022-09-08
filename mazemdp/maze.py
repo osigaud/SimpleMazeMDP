@@ -41,7 +41,6 @@ def check_navigability(mdp):
     return reachable
 
 
-
 def build_maze(width, height, walls, hit=False):
     ts = height * width - 1 - len(walls)
     maze = Maze(
@@ -269,6 +268,5 @@ class Maze:  # describes a maze-like environment
                         i == 0 or self.cells[i - 1][j] == -1
                     ):  # cells on the right + right side of a wall
                         reward_matrix[state, W] = -0.5
-
 
         return reward_matrix
