@@ -24,9 +24,8 @@ from matplotlib.table import Table
 from mazemdp.toolbox import E, N, S, W
 
 try:
-    import google.colab  # noqa: F401
-
-    os.environ["COLAB_NOTEBOOK"] = "True"
+    shell = get_ipython().__class__.__module__  # noqa: F401
+    os.environ["WEB_NOTEBOOK"] = shell in ['ipykernel.zmqshell', 'google.colab._shell']
 except ImportError:
     pass
 
@@ -118,7 +117,7 @@ class MazePlotter:
     """
 
     def __init__(
-        self, maze, using_notebook=bool(os.environ.get("COLAB_NOTEBOOK", False))
+        self, maze, using_notebook=bool(os.environ.get("WEB_NOTEBOOK", False))
     ):  # maze defined in the mdp notebook
         self.maze_attr = maze
         self.terminal_states = maze.terminal_states
