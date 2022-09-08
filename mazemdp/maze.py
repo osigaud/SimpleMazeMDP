@@ -40,7 +40,6 @@ def check_navigability(mdp):
     return mdp.nb_states - np.count_nonzero(v) == len(mdp.terminal_states)
 
 
-
 def build_maze(width, height, walls, hit=False):
     ts = height * width - 1 - len(walls)
     maze = Maze(
@@ -59,6 +58,7 @@ def create_random_maze(width, height, ratio, hit=False):
     # if one of the values after check_navigability is null, then another maze should be produced
     while not stop:
         walls = random.sample(range(size), int(n_walls))
+        print(walls)
 
         mdp, nb_states = build_maze(width, height, walls, hit=hit)
         stop = check_navigability(mdp)
@@ -267,6 +267,5 @@ class Maze:  # describes a maze-like environment
                         i == 0 or self.cells[i - 1][j] == -1
                     ):  # cells on the right + right side of a wall
                         reward_matrix[state, W] = -0.5
-
 
         return reward_matrix
