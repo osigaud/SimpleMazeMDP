@@ -32,6 +32,8 @@ def check_navigability(mdp):
                 # Select the highest state value among those computed
                 v[x] = np.max(v_temp)
 
+        print(v, v_old)
+
         # Test if convergence has been reached
         if (np.linalg.norm(v - v_old)) < 0.01:
             stop = True
@@ -58,7 +60,6 @@ def create_random_maze(width, height, ratio, hit=False):
     # if one of the values after check_navigability is null, then another maze should be produced
     while not stop:
         walls = random.sample(range(size), int(n_walls))
-        print(walls)
 
         mdp, nb_states = build_maze(width, height, walls, hit=hit)
         stop = check_navigability(mdp)
