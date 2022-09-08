@@ -37,14 +37,15 @@ def check_navigability(mdp):
             stop = True
 
     # We should reach terminal states from any starting point
-    return mdp.nb_states - np.count_nonzero(v) == len(mdp.terminal_states)
+    reachable = mdp.nb_states - np.count_nonzero(v) == len(mdp.terminal_states)
+    return reachable
 
 
 
 def build_maze(width, height, walls, hit=False):
     ts = height * width - 1 - len(walls)
     maze = Maze(
-        width, height, hit, walls=walls, terminal_states=[ts]
+        width, height, hit, walls=walls, last_states=[ts]
     )  # Markov Decision Process definition
     return maze.mdp, maze.nb_states
 
@@ -77,7 +78,7 @@ class Maze:  # describes a maze-like environment
         gamma=0.9,
         timeout=50,
         start_states=None,
-        terminal_states=None,
+        last_states=None,
     ):
         """
         :param width: Int number defining the maze width
@@ -88,13 +89,14 @@ class Maze:  # describes a maze-like environment
         :param gamma: Discount factor of the mdp
         :param timeout: Defines the length of an episode (max timestep) --see done() function
         :param start_states: List defining the states where the agent can be at the beginning of an episode
-        :param terminal_states: List defining the states corresponding to the end of an episode
-                        (agent reaches a terminal state) --cf. done() function
+        :param last_states: List defining the states corresponding to the step before the end of an episode
         """
         self.width = width
         self.height = height
         self.cells = np.zeros((width, height), int)
         self.nb_states = height * width - len(walls)
+
+        self.gamma = gamma
 
         if walls is None:
             walls = []
@@ -105,15 +107,17 @@ class Maze:  # describes a maze-like environment
         if start_states is None:
             start_states = [0]
 
-        if terminal_states is None:
-            terminal_states = []
+        self.last_states = last_states
+        if self.last_states is None:
+            self.last_states = []
+            
+        self.well = self.nb_states  # all the final states' transitions go there
 
         self.walls = walls
         self.size = width * height
         state = 0
         cell = 0
 
-        self.terminal_states = terminal_states
         self.state_width = []
         self.state_height = []
         # ##################### State Space ######################
@@ -145,14 +149,14 @@ class Maze:  # describes a maze-like environment
         plotter = MazePlotter(self)  # renders the environment
 
         self.mdp = Mdp(
-            self.nb_states,
+            self.nb_states+1,
             self.action_space,
             start_distribution,
             transition_matrix,
             reward_matrix,
             plotter,
-            gamma=gamma,
-            terminal_states=terminal_states,
+            gamma=self.gamma,
+            terminal_states=[self.nb_states],
             timeout=timeout,
         )
 
@@ -215,10 +219,10 @@ class Maze:  # describes a maze-like environment
                         transition_matrix[state][W][self.cells[i - 1][j]] = 1.0
 
         # Transition Matrix of terminal states
-        well = self.nb_states  # all the final states' transitions go there
-        for s in self.terminal_states:
+        for s in self.last_states:
             transition_matrix[s, :, :] = 0
-            transition_matrix[s, :, well] = 1
+            transition_matrix[s, :, self.well] = 1
+
         return transition_matrix
 
         # self.mdp = MyMdp(self.nb_states, self.action_space, start_distribution, transition_matrix, reward_matrix,
@@ -227,15 +231,13 @@ class Maze:  # describes a maze-like environment
     # --------------------------------- Reward Matrix ---------------------------------
     def simple_reward(self, transition_matrix: np.array):
         reward_matrix = np.zeros((self.nb_states, self.action_space.size))
-        for s in self.terminal_states:
-            for from_state, action in zip(*np.nonzero(transition_matrix[:, :, s])):
-                if from_state not in self.terminal_states:
-                    reward_matrix[from_state, action] = 1
+        for from_state, action in zip(*np.nonzero(transition_matrix[:, :, self.well])):
+                reward_matrix[from_state, action] = 1.
         return reward_matrix
 
     # --------------------------------- Reward Matrix ---------------------------------
     def reward_hit_walls(self, transition_matrix: np.array):
-        # Get the rewards for reaching a final state
+        # Get the for reaching a final state
         reward_matrix = self.simple_reward(transition_matrix)
 
         # Add negative rewards for hiting a wall
