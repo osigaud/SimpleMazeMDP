@@ -46,9 +46,9 @@ def show_videos(video_path: str = "", prefix: str = "") -> None:
     for avi in Path(video_path).glob(f"{prefix}*.avi"):
         mp4_video = str(avi).replace("avi", "mp4")
         # Convert
-        if not os.path.isfile(mp4_video):
+        if not os.path.isfile(mp4_video) or os.path.getmtime(mp4_video) < os.path.getmtime(avi):
             print(f"Converting {avi}")
-            os.system(f"ffmpeg -i {avi} -c:v libx264 -crf 19 {mp4_video}")
+            os.system(f"ffmpeg -y -i {avi} -c:v libx264 -crf 19 {mp4_video}")
 
     for mp4 in Path(video_path).glob(f"{prefix}*.mp4"):
         video_b64 = base64.b64encode(mp4.read_bytes())
