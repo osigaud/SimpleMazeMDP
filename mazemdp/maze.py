@@ -32,8 +32,6 @@ def check_navigability(mdp):
                 # Select the highest state value among those computed
                 v[x] = np.max(v_temp)
 
-        print(v, v_old)
-
         # Test if convergence has been reached
         if (np.linalg.norm(v - v_old)) < 0.01:
             stop = True
