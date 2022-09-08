@@ -20,24 +20,25 @@ def check_navigability(mdp):
 
         for x in range(mdp.nb_states):  # for each state x
             # Compute the value of state x for each action u of the MDP action space
-            v_temp = []
-            for u in mdp.action_space.actions:
-                if x not in mdp.terminal_states:
+            if x not in mdp.terminal_states:
+                v_temp = []
+                for u in mdp.action_space.actions:
                     # Process sum of the values of the neighbouring states
                     summ = 0
                     for y in range(mdp.nb_states):
                         summ = summ + mdp.P[x, u, y] * v_old[y]
                     v_temp.append(mdp.r[x, u] + summ)
-                else:  # if the state is final, then we only take the reward into account
-                    v_temp.append(mdp.r[x, u])
 
-            # Select the highest state value among those computed
-            v[x] = np.max(v_temp)
+                # Select the highest state value among those computed
+                v[x] = np.max(v_temp)
 
         # Test if convergence has been reached
         if (np.linalg.norm(v - v_old)) < 0.01:
             stop = True
-    return np.all(v)
+
+    # We should reach terminal states from any starting point
+    return mdp.nb_states - np.count_nonzero(v) == len(mdp.terminal_states)
+
 
 
 def build_maze(width, height, walls, hit=False):
@@ -137,9 +138,9 @@ class Maze:  # describes a maze-like environment
         transition_matrix = self.init_transitions(hit)
 
         if hit:
-            reward_matrix = self.reward_hit_walls()
+            reward_matrix = self.reward_hit_walls(transition_matrix)
         else:
-            reward_matrix = self.simple_reward()
+            reward_matrix = self.simple_reward(transition_matrix)
 
         plotter = MazePlotter(self)  # renders the environment
 
@@ -224,47 +225,48 @@ class Maze:  # describes a maze-like environment
         #                plotter, proba_action=0.5, gamma=gamma, terminal_states=terminal_states, timeout=timeout)
 
     # --------------------------------- Reward Matrix ---------------------------------
-    def simple_reward(self):
+    def simple_reward(self, transition_matrix: np.array):
         reward_matrix = np.zeros((self.nb_states, self.action_space.size))
         for s in self.terminal_states:
-            reward_matrix[
-                s, :
-            ] = 1  # leaving a final state gets the agent a reward of 1
+            for from_state, action in zip(*np.nonzero(transition_matrix[:, :, s])):
+                if from_state not in self.terminal_states:
+                    reward_matrix[from_state, action] = 1
         return reward_matrix
 
     # --------------------------------- Reward Matrix ---------------------------------
-    def reward_hit_walls(self):
-        reward_matrix = np.zeros((self.nb_states, self.action_space.size))
-        for s in self.terminal_states:
-            reward_matrix[
-                s, :
-            ] = 1  # leaving a final state gets the agent a reward of 1
-            for i in range(self.width):
-                for j in range(self.height):
-                    state = self.cells[i][j]
-                    if not state == -1:
+    def reward_hit_walls(self, transition_matrix: np.array):
+        # Get the rewards for reaching a final state
+        reward_matrix = self.simple_reward(transition_matrix)
 
-                        # Reward Matrix when going north
-                        if (
-                            j == 0 or self.cells[i][j - 1] == -1
-                        ):  # highest cells + cells under a wall
-                            reward_matrix[state, N] = -0.5
+        # Add negative rewards for hiting a wall
+        for i in range(self.width):
+            for j in range(self.height):
+                state = self.cells[i][j]
+                if not state == -1:
 
-                        # Reward Matrix when going south
-                        if (
-                            j == self.height - 1 or self.cells[i][j + 1] == -1
-                        ):  # lowest cells + cells above a wall
-                            reward_matrix[state, S] = -0.5
+                    # Reward Matrix when going north
+                    if (
+                        j == 0 or self.cells[i][j - 1] == -1
+                    ):  # highest cells + cells under a wall
+                        reward_matrix[state, N] = -0.5
 
-                        # Reward Matrix when going east
-                        if (
-                            i == self.width - 1 or self.cells[i + 1][j] == -1
-                        ):  # cells on the left + left side of a wall
-                            reward_matrix[state, E] = -0.5
+                    # Reward Matrix when going south
+                    if (
+                        j == self.height - 1 or self.cells[i][j + 1] == -1
+                    ):  # lowest cells + cells above a wall
+                        reward_matrix[state, S] = -0.5
 
-                        # Reward Matrix when going west
-                        if (
-                            i == 0 or self.cells[i - 1][j] == -1
-                        ):  # cells on the right + right side of a wall
-                            reward_matrix[state, W] = -0.5
-            return reward_matrix
+                    # Reward Matrix when going east
+                    if (
+                        i == self.width - 1 or self.cells[i + 1][j] == -1
+                    ):  # cells on the left + left side of a wall
+                        reward_matrix[state, E] = -0.5
+
+                    # Reward Matrix when going west
+                    if (
+                        i == 0 or self.cells[i - 1][j] == -1
+                    ):  # cells on the right + right side of a wall
+                        reward_matrix[state, W] = -0.5
+
+
+        return reward_matrix
