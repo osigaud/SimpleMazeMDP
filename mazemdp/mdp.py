@@ -67,7 +67,7 @@ class Mdp:
         # else it is drawn from a uniform distribution over all the states except for walls
 
         if uniform:
-            prob = np.ones(self.nb_states) / self.nb_states
+            prob = np.ones(self.nb_states-1) / (self.nb_states-1)
             self.current_state = discreteProb(prob)
         else:
             self.current_state = discreteProb(self.P0)
@@ -92,10 +92,7 @@ class Mdp:
 
         # the state reached when performing action u from state x is sampled
         # according to the discrete distribution self.P[x,u,:]
-        if self.current_state in self.terminal_states:
-            next_state = self.current_state
-        else:
-            next_state = discreteProb(self.P[self.current_state, u, :])
+        next_state = discreteProb(self.P[self.current_state, u, :])
 
         self.timestep += 1
 
