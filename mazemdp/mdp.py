@@ -107,9 +107,9 @@ class Mdp:
         return [next_state, reward, done, info]
 
     def new_render(
-        self, title
+        self, title, mode="human"
     ):  # initializes a new environment rendering (a plot defined by a figure, an axis...)
-        self.plotter.new_render(title)
+        return self.plotter.new_render(title, mode=mode)
 
     def render(
         self, v=None, policy=None, agent_pos=None, title="No Title"

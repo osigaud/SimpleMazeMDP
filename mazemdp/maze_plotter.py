@@ -154,7 +154,7 @@ class MazePlotter:
 
         self.axes_history[-1].add_table(self.table_history[-1])
 
-    def new_render(self, title):
+    def new_render(self, title, mode="human"):
         """
         initializes the plot by creating its basic components (figure, axis, agent patch and table)
         a trace of these components is stored so that the old outputs will last on the notebook
@@ -176,6 +176,10 @@ class MazePlotter:
             self.video_writer.release()
             self.video_writer = None
 
+        if mode == "rgb_array":
+            self.figure_history[-1].canvas.draw()
+            return self.figure_history[-1].canvas.buffer_rgba()
+
     def render(
         self,
         v=None,
@@ -183,6 +187,7 @@ class MazePlotter:
         agent_state=None,
         title="No Title",
         stochastic=False,
+        mode="human"
     ):
         """
         updates the values of the table
@@ -231,7 +236,8 @@ class MazePlotter:
         plt.xticks([])
         plt.yticks([])
         plt.tight_layout()
-        self.figure_history[-1].canvas.draw()
+        if mode == "human":
+            self.figure_history[-1].canvas.draw()
         self.figure_history[-1].canvas.flush_events()
 
         if self.using_notebook:
@@ -251,6 +257,9 @@ class MazePlotter:
                 )
             image = image[:, :, :3]  # remove alpha
             self.video_writer.write(image[:, :, ::-1])  # convert to BGR
+
+        if mode == "rgb_array":
+            return self.figure_history[-1].canvas.buffer_rgba()
 
     def cell_render_v(self, v, i, j, state):
         color = np.zeros(3)
