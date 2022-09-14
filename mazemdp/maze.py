@@ -46,7 +46,10 @@ def build_maze(width, height, walls, hit=False):
     maze = Maze(
         width, height, hit, walls=walls, last_states=[ts]
     )  # Markov Decision Process definition
-    return maze.mdp, maze.nb_states
+
+    # The MDP has one state more than the Maze (the final state
+    # outside of the maze)
+    return maze.mdp, maze.nb_states + 1
 
 
 def create_random_maze(width, height, ratio, hit=False):
