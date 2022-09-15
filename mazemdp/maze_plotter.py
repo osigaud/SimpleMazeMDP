@@ -1,6 +1,7 @@
 """
 Author: Olivier Sigaud + Antonin Raffin
 """
+from contextlib import contextmanager
 import os
 
 try:
@@ -109,7 +110,6 @@ def qvalue_params(width, height, i, j, action):
 
 # -------------------------------------------------------------------------------#
 
-
 class MazePlotter:
     """
     maze_mdp plot, used to plot the agent in its environment while processing the V/Q function and policy
@@ -136,6 +136,8 @@ class MazePlotter:
         self.video_folder = "videos"
         os.makedirs(self.video_folder, exist_ok=True)
 
+        self.figure = None
+
     def init_table(self):
         """
         the states of the mdp are drawn in a matplotlib table, this function creates this table
@@ -154,13 +156,10 @@ class MazePlotter:
 
         self.axes_history[-1].add_table(self.table_history[-1])
 
-    def new_render(self, title, mode="human"):
-        """
-        initializes the plot by creating its basic components (figure, axis, agent patch and table)
-        a trace of these components is stored so that the old outputs will last on the notebook
-        when a new rendering is performed
-        """
-        self.figure_history.append(plt.figure(title, figsize=(self.figW, self.figH)))
+
+    def render_base(self, title):
+        fig = plt.figure(title, figsize=(self.figW, self.figH))
+        self.figure_history.append(fig)
         plt.title(title)
         self.axes_history.append(self.figure_history[-1].add_subplot(111))
         self.table_history.append(Table(self.axes_history[-1], bbox=[0, 0, 1, 1]))
@@ -171,14 +170,40 @@ class MazePlotter:
         )
         self.axes_history[-1].add_patch(self.agent_patch_history[-1])
         self.init_table()
-        self.video_name = f"{title.replace(' ', '')}.avi"
-        if self.video_writer is not None:
-            self.video_writer.release()
-            self.video_writer = None
 
-        if mode == "rgb_array":
+
+    def new_render(self, title, mode="human"):
+        """
+        initializes the plot by creating its basic components (figure, axis, agent patch and table)
+        a trace of these components is stored so that the old outputs will last on the notebook
+        when a new rendering is performed
+        """
+
+        with plt.ioff():       
+            self.render_base(title)
             self.figure_history[-1].canvas.draw()
-            return self.figure_history[-1].canvas.buffer_rgba()
+            rgba = self.figure_history[-1].canvas.buffer_rgba()
+            plt.close()
+            if mode == "legacy":
+                # Do not draw if other than legacy
+                self.video_name = f"{title.replace(' ', '')}.avi"
+                if self.video_writer is not None:
+                    self.video_writer.release()
+                    self.video_writer = None
+
+        return self.display(rgba, mode)
+
+    def display(self, rgba, mode):
+        if mode == "human" or mode == "legacy":
+            
+            plt.imshow(rgba)
+            plt.axis('off')
+            plt.title(None)
+            plt.show()
+        elif mode == "rgba":
+            return rgba
+        else:
+            raise NotImplementedError(f"Mode {mode} is not implemented")
 
     def render(
         self,
@@ -187,79 +212,84 @@ class MazePlotter:
         agent_state=None,
         title="No Title",
         stochastic=False,
-        mode="human"
+        mode="legacy"
     ):
         """
         updates the values of the table
         and the agent position and current policy
         some of these components may not show depending on the parameters given when calling this function
         the agent state is set to None if we do not want to plot the agent
+
+        Args:
+            mode: legacy to use the old display mode, or human/rgba for gym environments
         """
-        if len(self.figure_history) == 0:  # new plot
-            self.new_render(title)
+        with plt.ioff():
+            self.render_base(title)
+            if v is None:
+                v = np.array([])
 
-        if v is None:
-            v = np.array([])
+            if policy is None:
+                policy = np.array([])
 
-        if policy is None:
-            policy = np.array([])
+            self.axes_history[-1].clear()
+            self.axes_history[-1].add_table(self.table_history[-1])
 
-        self.axes_history[-1].clear()
-        self.axes_history[-1].add_table(self.table_history[-1])
+            # Table values and policy update
+            for i in range(self.maze_attr.width):
+                for j in range(self.maze_attr.height):
+                    state = self.maze_attr.cells[i][j]
+                    if len(v) > 0:  # working with state values
+                        if len(v.shape) == 1:
+                            self.cell_render_v(v, i, j, state)
+                        else:  # working with state-action values
+                            self.cell_render_q(v, i, j, state)
+                    if len(policy) > 0:
+                        if stochastic:
+                            self.render_stochastic_policy(v, policy, i, j, state)
+                        else:
+                            self.render_policy(policy, i, j, state)
 
-        # Table values and policy update
-        for i in range(self.maze_attr.width):
-            for j in range(self.maze_attr.height):
-                state = self.maze_attr.cells[i][j]
-                if len(v) > 0:  # working with state values
-                    if len(v.shape) == 1:
-                        self.cell_render_v(v, i, j, state)
-                    else:  # working with state-action values
-                        self.cell_render_q(v, i, j, state)
-                if len(policy) > 0:
-                    if stochastic:
-                        self.render_stochastic_policy(v, policy, i, j, state)
-                    else:
-                        self.render_policy(policy, i, j, state)
-
-        if agent_state is not None and len(self.maze_attr.state_width) > agent_state:
-            x, y = coords(
-                self.maze_attr.width,
-                self.maze_attr.height,
-                self.maze_attr.state_width[agent_state],
-                self.maze_attr.state_height[agent_state],
-            )
-            self.agent_patch_history[-1].center = x, y
-            self.axes_history[-1].add_patch(self.agent_patch_history[-1])
-
-        plt.subplots_adjust(left=0.2, bottom=0.2)
-        plt.xticks([])
-        plt.yticks([])
-        plt.tight_layout()
-        if mode == "human":
-            self.figure_history[-1].canvas.draw()
-        self.figure_history[-1].canvas.flush_events()
-
-        if self.using_notebook:
-            # Get image
-            buf = self.figure_history[-1].canvas.buffer_rgba()
-            image = np.asarray(buf)
-            # Record video
-            if self.video_writer is None:
-                loc_height, loc_width, _ = image.shape
-                codec = cv2.VideoWriter_fourcc(*"MJPG")
-                fps = int(os.environ.get("VIDEO_FPS", 3))
-                self.video_writer = cv2.VideoWriter(
-                    f"{self.video_folder}/{self.video_name}",
-                    codec,
-                    fps,
-                    (loc_width, loc_height),
+            if agent_state is not None and len(self.maze_attr.state_width) > agent_state:
+                x, y = coords(
+                    self.maze_attr.width,
+                    self.maze_attr.height,
+                    self.maze_attr.state_width[agent_state],
+                    self.maze_attr.state_height[agent_state],
                 )
-            image = image[:, :, :3]  # remove alpha
-            self.video_writer.write(image[:, :, ::-1])  # convert to BGR
+                self.agent_patch_history[-1].center = x, y
+                self.axes_history[-1].add_patch(self.agent_patch_history[-1])
 
-        if mode == "rgb_array":
-            return self.figure_history[-1].canvas.buffer_rgba()
+            plt.subplots_adjust(left=0.2, bottom=0.2)
+            plt.xticks([])
+            plt.yticks([])
+            plt.tight_layout()
+
+            self.figure_history[-1].canvas.draw()
+            self.figure_history[-1].canvas.flush_events()
+            rgba = self.figure_history[-1].canvas.buffer_rgba()
+            plt.close()
+
+            if self.using_notebook and mode == "legacy":
+                # Adds an image to the video
+
+                # Get image
+                image = np.asarray(rgba)
+                # Record video
+                if self.video_writer is None:
+                    loc_height, loc_width, _ = image.shape
+                    codec = cv2.VideoWriter_fourcc(*"MJPG")
+                    fps = int(os.environ.get("VIDEO_FPS", 3))
+                    self.video_writer = cv2.VideoWriter(
+                        f"{self.video_folder}/{self.video_name}",
+                        codec,
+                        fps,
+                        (loc_width, loc_height),
+                    )
+                image = image[:, :, :3]  # remove alpha
+                self.video_writer.write(image[:, :, ::-1])  # convert to BGR
+
+
+        return self.display(rgba, mode)
 
     def cell_render_v(self, v, i, j, state):
         color = np.zeros(3)
