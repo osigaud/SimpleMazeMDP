@@ -121,15 +121,17 @@ class Mdp:
             policy = np.array([])
 
         if not self.has_state:
-            self.plotter.render(v=v, agent_state=None, title=title, mode=mode)
+            return self.plotter.render(v=v, agent_state=None, title=title, mode=mode)
         elif agent_pos is not None:
-            self.plotter.render(v=v, agent_state=agent_pos, title=title, mode=mode)
+            return self.plotter.render(v=v, agent_state=agent_pos, title=title, mode=mode)
         elif self.current_state is not None:
-            self.plotter.render(
+            return self.plotter.render(
                 v=v, agent_state=self.current_state, policy=policy, title=title, mode=mode
             )
         else:
-            self.plotter.render(v=v, title=title, mode=mode)
+            return self.plotter.render(v=v, title=title, mode=mode)
 
+        assert False, "Should not happen"
+        
     def save_fig(self, title):  # saves the current output into the disk
         self.plotter.save_fig(title)
