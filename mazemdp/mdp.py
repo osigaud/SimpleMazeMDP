@@ -107,12 +107,12 @@ class Mdp:
         return [next_state, reward, done, info]
 
     def new_render(
-        self, title
+        self, title, mode="human"
     ):  # initializes a new environment rendering (a plot defined by a figure, an axis...)
-        self.plotter.new_render(title)
+        return self.plotter.new_render(title, mode=mode)
 
     def render(
-        self, v=None, policy=None, agent_pos=None, title="No Title"
+        self, v=None, policy=None, agent_pos=None, title="No Title", mode="legacy"
     ):  # outputs the agent in the environment with values V (or Q)
         if v is None:
             v = np.array([])
@@ -121,15 +121,17 @@ class Mdp:
             policy = np.array([])
 
         if not self.has_state:
-            self.plotter.render(v=v, agent_state=None, title="No Title")
+            return self.plotter.render(v=v, agent_state=None, title=title, mode=mode)
         elif agent_pos is not None:
-            self.plotter.render(v=v, agent_state=agent_pos, title="No Title")
+            return self.plotter.render(v=v, agent_state=agent_pos, title=title, mode=mode)
         elif self.current_state is not None:
-            self.plotter.render(
-                v=v, agent_state=self.current_state, policy=policy, title="No Title"
+            return self.plotter.render(
+                v=v, agent_state=self.current_state, policy=policy, title=title, mode=mode
             )
         else:
-            self.plotter.render(v=v, title="No Title")
+            return self.plotter.render(v=v, title=title, mode=mode)
 
+        assert False, "Should not happen"
+        
     def save_fig(self, title):  # saves the current output into the disk
         self.plotter.save_fig(title)
