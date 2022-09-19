@@ -197,7 +197,7 @@ class MazePlotter:
                 ax = fig.add_subplot()
                 ax.axis('off')
                 ax.imshow(rgba)
-                plt.show()
+                plt.show(block=False)
 
         elif mode == "rgb_array":
             return rgba

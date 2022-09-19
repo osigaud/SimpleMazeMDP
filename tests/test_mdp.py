@@ -15,7 +15,7 @@ def test_create():
 
 
 def test_maze_visu():
-    mdp = create_random_maze(4, 5, 0.2)
+    mdp, _ = create_random_maze(4, 5, 0.2)
     mdp.new_render("Test visu value")
     for _ in range(3):
         random_value = np.random.random(size=(mdp.nb_states,))
@@ -35,7 +35,7 @@ def test_maze_visu():
 
 
 def test_step():
-    mdp = create_random_maze(5, 4, 0.2)
+    mdp, _ = create_random_maze(5, 4, 0.2)
     x = mdp.reset(uniform=True)
     done = mdp.done()
     random_policy = np.random.randint(
