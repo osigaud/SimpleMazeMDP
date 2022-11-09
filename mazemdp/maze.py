@@ -63,9 +63,9 @@ def create_random_maze(width, height, ratio, hit=False):
     while not stop:
         walls = random.sample(range(size), int(n_walls))
 
-        mdp, nb_states = build_maze(width, height, walls, hit=hit)
+        mdp, nb_states, coord_x, coord_y = build_maze(width, height, walls, hit=hit)
         stop = check_navigability(mdp)
-    return mdp, nb_states
+    return mdp, nb_states, coord_x, coord_y
 
 
 class Maze:  # describes a maze-like environment
