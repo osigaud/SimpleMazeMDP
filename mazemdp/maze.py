@@ -23,7 +23,7 @@ def check_navigability(mdp):
             # Compute the value of state x for each action u of the MDP action space
             if x not in mdp.terminal_states:
                 v_temp = []
-                for u in mdp.action_space.actions:
+                for u in range(mdp.action_space.n):
                     # Process sum of the values of the neighbouring states
                     summ = 0
                     for y in range(mdp.nb_states):

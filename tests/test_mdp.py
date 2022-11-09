@@ -4,6 +4,11 @@ from mazemdp import create_random_maze
 from mazemdp.chrono import Chrono
 from mazemdp.toolbox import egreedy_loc
 
+
+import matplotlib
+
+matplotlib.use("TkAgg")
+
 np.random.seed(0)
 
 
@@ -36,9 +41,7 @@ def test_step():
     mdp, nb_states, coord_x, coord_y = create_random_maze(5, 4, 0.2)
     x = mdp.reset(uniform=True)
     done = mdp.done()
-    random_policy = np.random.randint(
-        len(mdp.action_space.actions), size=(mdp.nb_states,)
-    )
+    random_policy = np.random.randint(mdp.action_space.n, size=(mdp.nb_states,))
     random_value = np.random.random(size=(mdp.nb_states,))
     mdp.new_render("Test step")
 
