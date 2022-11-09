@@ -49,7 +49,7 @@ def build_maze(width, height, walls, hit=False):
 
     # The MDP has one state more than the Maze (the final state
     # outside of the maze)
-    return maze.mdp, maze.nb_states + 1
+    return maze.mdp, maze.nb_states + 1, maze.coord_x, maze.coord_y
 
 
 def create_random_maze(width, height, ratio, hit=False):
