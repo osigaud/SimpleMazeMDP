@@ -66,6 +66,7 @@ def create_random_maze(width, height, ratio, hit=False):
 
         mdp, nb_states, coord_x, coord_y = build_maze(width, height, walls, hit=hit)
         stop = check_navigability(mdp)
+        print(mdp, nb_states, coord_x, coord_y)
     return mdp, nb_states, coord_x, coord_y
 
 
