@@ -7,25 +7,6 @@ import numpy as np
 from mazemdp.toolbox import discreteProb
 
 
-class SimpleActionSpace:  # class describing the action space of the markov decision process
-    def __init__(self, action_list=None, nactions=0):
-        if action_list is None or len(action_list) == 0:
-            self.actions = np.arange(nactions)
-        else:
-            self.actions = action_list
-
-        self.size = len(self.actions)
-
-    def sample(self, prob_list=None):
-        # returns an action drawn according to the prob_list distribution,
-        # if the param is not set, then it is drawn from a uniform distribution
-        if prob_list is None:
-            prob_list = np.ones(self.size) / self.size
-
-        index = discreteProb(prob_list)
-        return self.actions[index]
-
-
 class Mdp:
     """
     defines a Markov Decision Process
@@ -67,7 +48,7 @@ class Mdp:
         # else it is drawn from a uniform distribution over all the states except for walls
 
         if uniform:
-            prob = np.ones(self.nb_states-1) / (self.nb_states-1)
+            prob = np.ones(self.nb_states - 1) / (self.nb_states - 1)
             self.current_state = discreteProb(prob)
         else:
             self.current_state = discreteProb(self.P0)
@@ -123,15 +104,21 @@ class Mdp:
         if not self.has_state:
             return self.plotter.render(v=v, agent_state=None, title=title, mode=mode)
         elif agent_pos is not None:
-            return self.plotter.render(v=v, agent_state=agent_pos, title=title, mode=mode)
+            return self.plotter.render(
+                v=v, agent_state=agent_pos, title=title, mode=mode
+            )
         elif self.current_state is not None:
             return self.plotter.render(
-                v=v, agent_state=self.current_state, policy=policy, title=title, mode=mode
+                v=v,
+                agent_state=self.current_state,
+                policy=policy,
+                title=title,
+                mode=mode,
             )
         else:
             return self.plotter.render(v=v, title=title, mode=mode)
 
         assert False, "Should not happen"
-        
+
     def save_fig(self, title):  # saves the current output into the disk
         self.plotter.save_fig(title)

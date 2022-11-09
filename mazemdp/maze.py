@@ -3,11 +3,12 @@ Author: Olivier Sigaud
 """
 
 import random
+import gym
 
 import numpy as np
 
 from mazemdp.maze_plotter import MazePlotter  # used to plot the maze
-from mazemdp.mdp import Mdp, SimpleActionSpace
+from mazemdp.mdp import Mdp
 from mazemdp.toolbox import E, N, S, W
 
 
@@ -75,7 +76,6 @@ class Maze:  # describes a maze-like environment
         height,
         hit=False,
         walls=None,
-        action_list=None,
         nb_actions=4,
         gamma=0.9,
         timeout=50,
@@ -103,9 +103,6 @@ class Maze:  # describes a maze-like environment
         if walls is None:
             walls = []
 
-        if action_list is None:
-            action_list = []
-
         if start_states is None:
             start_states = [0]
 
@@ -126,9 +123,7 @@ class Maze:  # describes a maze-like environment
         self.init_states(width, height, walls)
 
         # ##################### Action Space ######################
-        self.action_space = SimpleActionSpace(
-            action_list=action_list, nactions=nb_actions
-        )
+        self.action_space = gym.spaces.Discrete(4)
 
         # ##################### Distribution Over Initial States ######################
 
@@ -187,7 +182,7 @@ class Maze:  # describes a maze-like environment
         """
 
         transition_matrix = np.empty(
-            (self.nb_states + 1, self.action_space.size, self.nb_states + 1)
+            (self.nb_states + 1, self.action_space.n, self.nb_states + 1)
         )
 
         transition_matrix[:, N, :] = np.zeros((self.nb_states + 1, self.nb_states + 1))
@@ -236,7 +231,7 @@ class Maze:  # describes a maze-like environment
 
     # --------------------------------- Reward Matrix ---------------------------------
     def simple_reward(self, transition_matrix: np.array):
-        reward_matrix = np.zeros((self.nb_states, self.action_space.size))
+        reward_matrix = np.zeros((self.nb_states, self.action_space.n))
         for from_state, action in zip(*np.nonzero(transition_matrix[:, :, self.well])):
             reward_matrix[from_state, action] = 1.0
         return reward_matrix
