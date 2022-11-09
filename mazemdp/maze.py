@@ -49,7 +49,7 @@ def build_maze(width, height, walls, hit=False):
 
     # The MDP has one state more than the Maze (the final state
     # outside of the maze)
-    return maze.mdp, maze.nb_states + 1
+    return maze.mdp, maze.nb_states + 1, maze.coord_x, maze.coord_y
 
 
 def create_random_maze(width, height, ratio, hit=False):
@@ -63,9 +63,9 @@ def create_random_maze(width, height, ratio, hit=False):
     while not stop:
         walls = random.sample(range(size), int(n_walls))
 
-        mdp, nb_states = build_maze(width, height, walls, hit=hit)
+        mdp, nb_states, coord_x, coord_y = build_maze(width, height, walls, hit=hit)
         stop = check_navigability(mdp)
-    return mdp, nb_states
+    return mdp, nb_states, coord_x, coord_y
 
 
 class Maze:  # describes a maze-like environment
@@ -112,18 +112,18 @@ class Maze:  # describes a maze-like environment
         self.last_states = last_states
         if self.last_states is None:
             self.last_states = []
-            
+
         self.well = self.nb_states  # all the final states' transitions go there
 
         self.walls = walls
         self.size = width * height
-        state = 0
-        cell = 0
 
         self.state_width = []
         self.state_height = []
+        self.coord_x = np.zeros(height * width - len(walls))
+        self.coord_y = np.zeros(height * width - len(walls))
         # ##################### State Space ######################
-        self.init_states(width, height, cell, walls, state)
+        self.init_states(width, height, walls)
 
         # ##################### Action Space ######################
         self.action_space = SimpleActionSpace(
@@ -151,7 +151,7 @@ class Maze:  # describes a maze-like environment
         plotter = MazePlotter(self)  # renders the environment
 
         self.mdp = Mdp(
-            self.nb_states+1,
+            self.nb_states + 1,
             self.action_space,
             start_distribution,
             transition_matrix,
@@ -162,7 +162,9 @@ class Maze:  # describes a maze-like environment
             timeout=timeout,
         )
 
-    def init_states(self, width, height, cell, walls, state):
+    def init_states(self, width, height, walls):
+        state = 0
+        cell = 0
         for i in range(width):
             for j in range(height):
                 if cell not in walls:
@@ -170,11 +172,13 @@ class Maze:  # describes a maze-like environment
                     state = state + 1
                     self.state_width.append(i)
                     self.state_height.append(j)
+                    self.coord_x[state] = j
+                    self.coord_y[state] = i
                 else:
                     self.cells[i][j] = -1
                 cell = cell + 1
 
-        self.nb_states = state
+        assert self.nb_states == state, "maze init: error in the number of states"
 
     def init_transitions(self, hit):
         """
@@ -234,7 +238,7 @@ class Maze:  # describes a maze-like environment
     def simple_reward(self, transition_matrix: np.array):
         reward_matrix = np.zeros((self.nb_states, self.action_space.size))
         for from_state, action in zip(*np.nonzero(transition_matrix[:, :, self.well])):
-                reward_matrix[from_state, action] = 1.
+            reward_matrix[from_state, action] = 1.0
         return reward_matrix
 
     # --------------------------------- Reward Matrix ---------------------------------
