@@ -10,7 +10,7 @@ W = 3
 NOOP = 4
 
 
-def discreteProb(p):
+def sample_categorical(p):
     """
     param: p a probability distribution
     Draw a random number using probability table p (column vector)
@@ -69,6 +69,7 @@ def egreedy(q, x, epsilon):
 
 def egreedy_loc(action, nb, epsilon):
     # Returns an action following the epsilon-greedy exploration policy
+    # Used when the default action is known: returns this action or a random one
     # Inputs :
     # - epsilon: rate of random actions
     # Output:
@@ -103,5 +104,5 @@ def random_policy(mdp):
     rand = np.random
     pol = np.zeros(mdp.nb_states, dtype=np.int16)
     for x in range(mdp.nb_states):
-        pol[x] = rand.choice(mdp.action_space.actions)
+        pol[x] = rand.choice(range(mdp.action_space.n))
     return pol
