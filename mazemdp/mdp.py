@@ -4,7 +4,7 @@ Author: Olivier Sigaud
 
 import numpy as np
 
-from mazemdp.toolbox import discreteProb
+from mazemdp.toolbox import sample_categorical
 
 
 class Mdp:
@@ -49,9 +49,9 @@ class Mdp:
 
         if uniform:
             prob = np.ones(self.nb_states - 1) / (self.nb_states - 1)
-            self.current_state = discreteProb(prob)
+            self.current_state = sample_categorical(prob)
         else:
-            self.current_state = discreteProb(self.P0)
+            self.current_state = sample_categorical(self.P0)
 
         self.timestep = 0
         self.last_action_achieved = False
@@ -73,7 +73,7 @@ class Mdp:
 
         # the state reached when performing action u from state x is sampled
         # according to the discrete distribution self.P[x,u,:]
-        next_state = discreteProb(self.P[self.current_state, u, :])
+        next_state = sample_categorical(self.P[self.current_state, u, :])
 
         self.timestep += 1
 
