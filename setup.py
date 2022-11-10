@@ -16,6 +16,8 @@ setup(
     # *strongly* suggested for sharing
     # version=f"{__version__}.dev0+{hash}",
     # The license can be anything you like
+    use_scm_version=True,
+    setup_requires=['setuptools_scm'],
     license="MIT",
     description="An simple maze to test dynamic programming and tabular reinforcement learning algorithms",
     long_description=open("README.md").read(),
