@@ -164,11 +164,11 @@ class Maze:  # describes a maze-like environment
             for j in range(height):
                 if cell not in walls:
                     self.cells[i][j] = state
+                    self.coord_x[state] = j
+                    self.coord_y[state] = i
                     state = state + 1
                     self.state_width.append(i)
                     self.state_height.append(j)
-                    self.coord_x[state] = j
-                    self.coord_y[state] = i
                 else:
                     self.cells[i][j] = -1
                 cell = cell + 1
