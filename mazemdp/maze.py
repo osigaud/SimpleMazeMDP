@@ -47,9 +47,8 @@ def build_maze(width, height, walls, hit=False):
     maze = Maze(
         width, height, hit, walls=walls, last_states=[ts]
     )  # Markov Decision Process definition
-
-    # The MDP has one state more than the Maze (the final state
-    # outside of the maze)
+    # The MDP has one state more than the Maze
+    # (the final state is outside of the maze)
     return maze.mdp, maze.nb_states + 1, maze.coord_x, maze.coord_y
 
 
@@ -123,7 +122,7 @@ class Maze:  # describes a maze-like environment
         self.init_states(width, height, walls)
 
         # ##################### Action Space ######################
-        self.action_space = gym.spaces.Discrete(4)
+        self.action_space = gym.spaces.Discrete(nb_actions)
 
         # ##################### Distribution Over Initial States ######################
 
@@ -272,3 +271,7 @@ class Maze:  # describes a maze-like environment
                         reward_matrix[state, W] = -0.5
 
         return reward_matrix
+
+
+if __name__ == "__main__":
+    m = create_random_maze(3, 3, 0.0)

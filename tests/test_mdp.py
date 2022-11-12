@@ -4,7 +4,6 @@ from mazemdp import create_random_maze
 from mazemdp.chrono import Chrono
 from mazemdp.toolbox import egreedy_loc
 
-
 import matplotlib
 
 matplotlib.use("TkAgg")
@@ -16,6 +15,7 @@ def test_create():
     chrono = Chrono()
     mdp, *args = create_random_maze(5, 5, 0.2, hit=True)
     mdp.new_render("Test visu maze")
+    print(mdp.action_space)
     chrono.stop()
 
 

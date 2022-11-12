@@ -14,10 +14,6 @@ except ImportError:
     cv2 = None
 import matplotlib
 
-# Force backend
-if os.environ.get("PLOT_BACKEND"):
-    matplotlib.use(os.environ.get("PLOT_BACKEND"))
-print(f"Matplotlib backend: {matplotlib.get_backend()}")
 import base64
 from pathlib import Path
 
@@ -30,10 +26,16 @@ from mazemdp.toolbox import E, N, S, W
 
 try:
     shell = get_ipython().__class__.__module__  # noqa: F401
-    if shell is not None and shell in ['ipykernel.zmqshell', 'google.colab._shell']:
+    if shell is not None and shell in ["ipykernel.zmqshell", "google.colab._shell"]:
         os.environ["WEB_NOTEBOOK"] = shell
 except NameError:
     pass
+
+
+# Force backend
+if os.environ.get("PLOT_BACKEND"):
+    matplotlib.use(os.environ.get("PLOT_BACKEND"))
+print(f"Matplotlib backend: {matplotlib.get_backend()}")
 
 # ------------------- plot functions for a maze like environment ----------------#
 
@@ -52,7 +54,9 @@ def show_videos(video_path: str = "", prefix: str = "") -> None:
     for avi in Path(video_path).glob(f"{prefix}*.avi"):
         mp4_video = str(avi).replace("avi", "mp4")
         # Convert
-        if not os.path.isfile(mp4_video) or os.path.getmtime(mp4_video) < os.path.getmtime(avi):
+        if not os.path.isfile(mp4_video) or os.path.getmtime(
+            mp4_video
+        ) < os.path.getmtime(avi):
             print(f"Converting {avi}")
             os.system(f"ffmpeg -y -i {avi} -c:v libx264 -crf 19 {mp4_video}")
 
@@ -116,7 +120,6 @@ def qvalue_params(width, height, i, j, action):
 # -------------------------------------------------------------------------------#
 
 
-
 @dataclass
 class Plot:
     canvas: FigureCanvasAgg
@@ -124,7 +127,6 @@ class Plot:
     axes: Axes
     table: Table
     patch: Any
-
 
 
 class MazePlotter:
@@ -141,7 +143,7 @@ class MazePlotter:
         self.using_notebook = using_notebook
         self.figW = self.maze_attr.width
         self.figH = self.maze_attr.height
-        
+
         self.plot_history: List[Plot] = []
 
         self.image_idx = 0
@@ -165,14 +167,12 @@ class MazePlotter:
                     color[0] = color[1] = color[2] = 0
                 else:
                     color[0] = color[1] = color[2] = 1
-                table.add_cell(
-                    j, i, 0.1, 0.2, facecolor=color, text="", loc="center"
-                )
+                table.add_cell(j, i, 0.1, 0.2, facecolor=color, text="", loc="center")
 
     def display(self, rgba, mode):
         if mode == "human" or mode == "legacy":
             if self.using_notebook:
-                import IPython.display as display 
+                import IPython.display as display
                 from PIL import Image
                 import io
                 import ipywidgets as widgets
@@ -180,22 +180,25 @@ class MazePlotter:
                 # Creates a new widget if needed
                 # (1) no widget
                 # (2) widget in another cell
-                if self.widget_out is None or self.widget_execution_count != get_ipython().execution_count:
+                if (
+                    self.widget_out is None
+                    or self.widget_execution_count != get_ipython().execution_count
+                ):
                     self.widget_out = widgets.Output()
                     self.widget_execution_count = get_ipython().execution_count
                     display.display(self.widget_out)
 
                 self.widget_out.clear_output(True)
                 with self.widget_out:
-                    image = Image.fromarray(rgba, 'RGBA')
+                    image = Image.fromarray(rgba, "RGBA")
                     output = io.BytesIO()
-                    image.save(output, format='png')
+                    image.save(output, format="png")
                     display.display(display.Image(data=output.getvalue(), format="png"))
             else:
                 fig = plt.gcf()
                 fig.clear()
                 ax = fig.add_subplot()
-                ax.axis('off')
+                ax.axis("off")
                 ax.imshow(rgba)
                 plt.show(block=False)
 
@@ -219,8 +222,6 @@ class MazePlotter:
 
         self.init_table(table)
         axes.add_table(table)
-
-
 
     def new_render(self, title, mode="human"):
         """
@@ -251,7 +252,7 @@ class MazePlotter:
         agent_state=None,
         stochastic=False,
         title="No title",
-        mode="legacy"
+        mode="legacy",
     ):
         """
         updates the values of the table
@@ -270,11 +271,10 @@ class MazePlotter:
         if policy is None:
             policy = np.array([])
 
-
         if len(self.plot_history) == 0:
             self.render_base(title)
         plot = self.plot_history[-1]
-        
+
         plot.axes.clear()
         plot.axes.add_table(plot.table)
 
@@ -302,7 +302,6 @@ class MazePlotter:
             )
             plot.patch.center = x, y
             plot.axes.add_patch(plot.patch)
-
 
         plot.fig.subplots_adjust(left=0.2, bottom=0.2)
         # plot.axes.xticks([])
@@ -354,9 +353,7 @@ class MazePlotter:
             )
 
         plot.table._cells[(j, i)].set_facecolor(color)
-        plot.table._cells[(j, i)]._text.set_text(
-            np.round(np.max(q[state]), 2)
-        )
+        plot.table._cells[(j, i)]._text.set_text(np.round(np.max(q[state]), 2))
 
         if not (state == -1 or state in self.terminal_states):
             qmin = np.min(q[state])
@@ -433,9 +430,7 @@ class MazePlotter:
             )
 
         plot.table._cells[(j, i)].set_facecolor(color)
-        plot.table._cells[(j, i)]._text.set_text(
-            np.round(np.max(q[state]), 2)
-        )
+        plot.table._cells[(j, i)]._text.set_text(np.round(np.max(q[state]), 2))
 
         if not (state == -1 or state in self.terminal_states):
             qmin = np.min(q[state])
