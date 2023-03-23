@@ -2,8 +2,8 @@
 Author: Olivier Sigaud
 """
 
+from functools import cached_property
 import random
-import gym
 
 import numpy as np
 
@@ -122,7 +122,7 @@ class Maze:  # describes a maze-like environment
         self.init_states(width, height, walls)
 
         # ##################### Action Space ######################
-        self.action_space = gym.spaces.Discrete(nb_actions)
+        self.nb_actions = nb_actions
 
         # ##################### Distribution Over Initial States ######################
 
@@ -155,6 +155,12 @@ class Maze:  # describes a maze-like environment
             terminal_states=[self.nb_states],
             timeout=timeout,
         )
+
+    @cached_property
+    def action_space(self):
+        """Legacy method to get the action space"""
+        import gym
+        return gym.spaces.Discrete(self.nb_actions)
 
     def init_states(self, width, height, walls):
         state = 0

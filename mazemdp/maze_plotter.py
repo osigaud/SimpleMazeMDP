@@ -203,7 +203,7 @@ class MazePlotter:
                 plt.show(block=False)
 
         elif mode == "rgb_array":
-            return rgba
+            return rgba.copy()
         else:
             raise NotImplementedError(f"Mode {mode} is not implemented")
 
