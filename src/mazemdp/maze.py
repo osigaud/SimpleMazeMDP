@@ -187,7 +187,7 @@ class Maze:  # describes a maze-like environment
         """
 
         transition_matrix = np.empty(
-            (self.nb_states + 1, self.action_space.n, self.nb_states + 1)
+            (self.nb_states + 1, self.nb_actions, self.nb_states + 1)
         )
 
         transition_matrix[:, N, :] = np.zeros((self.nb_states + 1, self.nb_states + 1))
@@ -236,7 +236,7 @@ class Maze:  # describes a maze-like environment
 
     # --------------------------------- Reward Matrix ---------------------------------
     def simple_reward(self, transition_matrix: np.array):
-        reward_matrix = np.zeros((self.nb_states, self.action_space.n))
+        reward_matrix = np.zeros((self.nb_states, self.nb_actions))
         for from_state, action in zip(*np.nonzero(transition_matrix[:, :, self.well])):
             reward_matrix[from_state, action] = 1.0
         return reward_matrix
