@@ -2,6 +2,7 @@
 Author: Olivier Sigaud
 """
 
+from functools import cached_property
 import numpy as np
 
 from mazemdp.toolbox import sample_categorical
@@ -15,7 +16,7 @@ class Mdp:
     def __init__(
         self,
         nb_states,
-        action_space,
+        nb_actions,
         start_distribution,
         transition_matrix,
         reward_matrix,
@@ -27,10 +28,10 @@ class Mdp:
     ):
         assert timeout > 10, "timeout too short:" + timeout
         self.nb_states = nb_states
+        self.nb_actions = nb_actions
         if terminal_states is None:
             terminal_states = []
         self.terminal_states = terminal_states
-        self.action_space = action_space
         self.has_state = has_state
         self.timeout = timeout  # maximum length of an episode
         self.timestep = 0
@@ -41,6 +42,12 @@ class Mdp:
         self.gamma = gamma  # discount factor
         self.current_state = None
 
+    @cached_property
+    def action_space(self):
+        """Legacy method to get the action space"""
+        import gym
+        return gym.spaces.Discrete(self.nb_actions)
+    
     def reset(
         self, uniform=False
     ):  # initializes an episode and returns the state of the agent

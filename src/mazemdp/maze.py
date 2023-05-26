@@ -12,7 +12,7 @@ from mazemdp.mdp import Mdp
 from mazemdp.toolbox import E, N, S, W
 
 
-def check_navigability(mdp):
+def check_navigability(mdp: Mdp):
     v = np.zeros(mdp.nb_states)  # initial state values are set to 0
     stop = False
 
@@ -23,7 +23,7 @@ def check_navigability(mdp):
             # Compute the value of state x for each action u of the MDP action space
             if x not in mdp.terminal_states:
                 v_temp = []
-                for u in range(mdp.action_space.n):
+                for u in range(mdp.nb_actions):
                     # Process sum of the values of the neighbouring states
                     summ = 0
                     for y in range(mdp.nb_states):
@@ -146,7 +146,7 @@ class Maze:  # describes a maze-like environment
 
         self.mdp = Mdp(
             self.nb_states + 1,
-            self.action_space,
+            self.nb_actions,
             start_distribution,
             transition_matrix,
             reward_matrix,
