@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.table import Table
 
-from tabularmazemdp.toolbox import E, N, S, W
+from mazemdp.toolbox import E, N, S, W
 
 try:
     shell = get_ipython().__class__.__module__  # noqa: F401

@@ -6,7 +6,7 @@ from functools import cached_property
 import numpy as np
 import random
 
-from tabularmazemdp.toolbox import sample_categorical
+from mazemdp.toolbox import sample_categorical
 
 
 class Mdp:

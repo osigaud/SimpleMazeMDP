@@ -7,9 +7,9 @@ import random
 
 import numpy as np
 
-from tabularmazemdp.maze_plotter import MazePlotter  # used to plot the maze
-from tabularmazemdp.mdp import Mdp
-from tabularmazemdp.toolbox import E, N, S, W
+from mazemdp.maze_plotter import MazePlotter  # used to plot the maze
+from mazemdp.mdp import Mdp
+from mazemdp.toolbox import E, N, S, W
 
 
 def check_navigability(mdp: Mdp):
