@@ -7,9 +7,9 @@ import random
 
 import numpy as np
 
-from mazemdp.maze_plotter import MazePlotter  # used to plot the maze
-from mazemdp.mdp import Mdp
-from mazemdp.toolbox import E, N, S, W
+from tabularmazemdp.maze_plotter import MazePlotter  # used to plot the maze
+from tabularmazemdp.mdp import Mdp
+from tabularmazemdp.toolbox import E, N, S, W
 
 
 def check_navigability(mdp: Mdp):
@@ -21,7 +21,9 @@ def check_navigability(mdp: Mdp):
 
         for x in range(mdp.nb_states):  # for each state x
             # Compute the value of state x for each action u of the MDP action space
-            if x not in mdp.terminal_states:
+            if x in mdp.terminal_states:
+                v[x] = np.max(mdp.r[x, :])
+            else:
                 v_temp = []
                 for u in range(mdp.nb_actions):
                     # Process sum of the values of the neighbouring states
@@ -38,18 +40,14 @@ def check_navigability(mdp: Mdp):
             stop = True
 
     # We should reach terminal states from any starting point
-    reachable = mdp.nb_states - np.count_nonzero(v) == len(mdp.terminal_states)
+    reachable = mdp.nb_states - np.count_nonzero(v) == 0
     return reachable
 
 
 def build_maze(width, height, walls, hit=False):
     ts = height * width - 1 - len(walls)
-    maze = Maze(
-        width, height, hit, walls=walls, last_states=[ts]
-    )  # Markov Decision Process definition
-    # The MDP has one state more than the Maze
-    # (the final state is outside of the maze)
-    return maze.mdp, maze.nb_states + 1, maze.coord_x, maze.coord_y
+    maze = Maze(width, height, hit, walls=walls, last_states=[ts])
+    return maze.mdp, maze.nb_states, maze.coord_x, maze.coord_y
 
 
 def create_random_maze(width, height, ratio, hit=False):
@@ -109,8 +107,6 @@ class Maze:  # describes a maze-like environment
         if self.last_states is None:
             self.last_states = []
 
-        self.well = self.nb_states  # all the final states' transitions go there
-
         self.walls = walls
         self.size = width * height
 
@@ -145,14 +141,14 @@ class Maze:  # describes a maze-like environment
         plotter = MazePlotter(self)  # renders the environment
 
         self.mdp = Mdp(
-            self.nb_states + 1,
+            self.nb_states,
             self.nb_actions,
             start_distribution,
             transition_matrix,
             reward_matrix,
             plotter,
             gamma=self.gamma,
-            terminal_states=[self.nb_states],
+            terminal_states=[self.nb_states - 1],
             timeout=timeout,
         )
 
@@ -160,6 +156,7 @@ class Maze:  # describes a maze-like environment
     def action_space(self):
         """Legacy method to get the action space"""
         import gym
+
         return gym.spaces.Discrete(self.nb_actions)
 
     def init_states(self, width, height, walls):
@@ -183,17 +180,14 @@ class Maze:  # describes a maze-like environment
     def init_transitions(self, hit):
         """
         Init the transition matrix
-        a "well" state is added that only the terminal states can get into
         """
 
-        transition_matrix = np.empty(
-            (self.nb_states + 1, self.nb_actions, self.nb_states + 1)
-        )
+        transition_matrix = np.empty((self.nb_states, self.nb_actions, self.nb_states))
 
-        transition_matrix[:, N, :] = np.zeros((self.nb_states + 1, self.nb_states + 1))
-        transition_matrix[:, S, :] = np.zeros((self.nb_states + 1, self.nb_states + 1))
-        transition_matrix[:, E, :] = np.zeros((self.nb_states + 1, self.nb_states + 1))
-        transition_matrix[:, W, :] = np.zeros((self.nb_states + 1, self.nb_states + 1))
+        transition_matrix[:, N, :] = np.zeros((self.nb_states, self.nb_states))
+        transition_matrix[:, S, :] = np.zeros((self.nb_states, self.nb_states))
+        transition_matrix[:, E, :] = np.zeros((self.nb_states, self.nb_states))
+        transition_matrix[:, W, :] = np.zeros((self.nb_states, self.nb_states))
 
         for i in range(self.width):
             for j in range(self.height):
@@ -225,28 +219,30 @@ class Maze:  # describes a maze-like environment
                         transition_matrix[state][W][self.cells[i - 1][j]] = 1.0
 
         # Transition Matrix of terminal states
-        for s in self.last_states:
-            transition_matrix[s, :, :] = 0
-            transition_matrix[s, :, self.well] = 1
+        # for s in self.last_states:
+        # transition_matrix[s, :, s] = 1
 
         return transition_matrix
-
-        # self.mdp = MyMdp(self.nb_states, self.action_space, start_distribution, transition_matrix, reward_matrix,
-        #                plotter, proba_action=0.5, gamma=gamma, terminal_states=terminal_states, timeout=timeout)
 
     # --------------------------------- Reward Matrix ---------------------------------
     def simple_reward(self, transition_matrix: np.array):
         reward_matrix = np.zeros((self.nb_states, self.nb_actions))
-        for from_state, action in zip(*np.nonzero(transition_matrix[:, :, self.well])):
-            reward_matrix[from_state, action] = 1.0
+
+        # for final_state in self.last_states:
+        #     for from_state, action in zip(*np.nonzero(transition_matrix[:, :, final_state])):
+        #         reward_matrix[from_state, action] = 1.0
+        for final_state in self.last_states:
+            for action in range(self.nb_actions):
+                reward_matrix[final_state, action] = 1.0
+
         return reward_matrix
 
     # --------------------------------- Reward Matrix ---------------------------------
     def reward_hit_walls(self, transition_matrix: np.array):
-        # Get the for reaching a final state
+        # Get the reward for reaching a final state
         reward_matrix = self.simple_reward(transition_matrix)
 
-        # Add negative rewards for hiting a wall
+        # Add negative rewards for hitting a wall
         for i in range(self.width):
             for j in range(self.height):
                 state = self.cells[i][j]

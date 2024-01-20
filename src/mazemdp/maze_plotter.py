@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.table import Table
 
-from mazemdp.toolbox import E, N, S, W
+from tabularmazemdp.toolbox import E, N, S, W
 
 try:
     shell = get_ipython().__class__.__module__  # noqa: F401
@@ -399,7 +399,8 @@ class MazePlotter:
         for i in range(self.maze_attr.width):
             for j in range(self.maze_attr.height):
                 state = self.maze_attr.cells[i][j]
-                self.render_policy(policy, i, j, state)
+                plot = self.plot_history[-1]
+                self.render_policy(plot, policy, i, j, state)
 
     def render_policy(self, plot: Plot, policy, i, j, state):
         if not (state == -1 or state in self.terminal_states):
