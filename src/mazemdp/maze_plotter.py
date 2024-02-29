@@ -163,9 +163,10 @@ class MazePlotter:
         for i in range(self.maze_attr.width):
             for j in range(self.maze_attr.height):
                 color = np.zeros(3)
-                if self.maze_attr.cells[i][j] == -1:
+                state = self.maze_attr.cells[i][j]
+                if state == -1:
                     color[0] = color[1] = color[2] = 0
-                elif maze_attr.cells[i][j] in self.terminal_states:
+                elif state in self.terminal_states:
                     color[0] = 0.9
                     color[1] = 0
                     color[2] = 0.7
