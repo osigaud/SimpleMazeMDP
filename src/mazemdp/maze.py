@@ -18,8 +18,15 @@ def build_maze(width, height, walls, hit=False):
     return maze.mdp, maze.nb_states, maze.coord_x, maze.coord_y
 
 
-def build_custom_maze(width, height, walls, terminal_states, hit=False):
-    maze = Maze(width, height, walls=walls, terminal_states=terminal_states, hit=hit)
+def build_custom_maze(width, height, start_states, walls, terminal_states, hit=False):
+    maze = Maze(
+        width,
+        height,
+        start_states=start_states,
+        walls=walls,
+        terminal_states=terminal_states,
+        hit=hit,
+    )
     return maze.mdp, maze.nb_states, maze.coord_x, maze.coord_y
 
 
@@ -73,9 +80,6 @@ class Maze:  # describes a maze-like environment
         if walls is None:
             walls = []
 
-        if start_states is None:
-            start_states = [0]
-
         self.terminal_states = terminal_states
         if self.terminal_states is None:
             self.terminal_states = []
@@ -99,9 +103,12 @@ class Maze:  # describes a maze-like environment
             self.nb_states
         )  # distribution over initial states
 
-        # supposed to be uniform
-        for state in start_states:
-            start_distribution[state] = 1.0 / len(start_states)
+        if start_states is None:
+            for state in start_distribution:
+                start_distribution[state] = 1.0 / len(start_distribution)
+        else:
+            for state in start_states:
+                start_distribution[state] = 1.0 / len(start_states)
 
         # ##################### Transition Matrix ######################
         transition_matrix = self.init_transitions(hit)
