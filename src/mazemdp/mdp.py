@@ -139,3 +139,34 @@ class Mdp:
 
     def save_fig(self, title):  # saves the current output into the disk
         self.plotter.save_fig(title)
+
+    def check_navigability(self):
+        v = np.zeros(self.nb_states)  # initial state values are set to 0
+        stop = False
+
+        while not stop:
+            v_old = v.copy()
+
+            for x in range(self.nb_states):  # for each state x
+                # Compute the value of state x for each action u of the MDP action space
+                if x in self.terminal_states:
+                    v[x] = np.max(self.r[x, :])
+                else:
+                    v_temp = []
+                    for u in range(self.nb_actions):
+                        # Process sum of the values of the neighbouring states
+                        summ = 0
+                        for y in range(self.nb_states):
+                            summ = summ + self.P[x, u, y] * v_old[y]
+                        v_temp.append(self.r[x, u] + summ)
+
+                        # Select the highest state value among those computed
+                        v[x] = np.max(v_temp)
+
+                        # Test if convergence has been reached
+            if (np.linalg.norm(v - v_old)) < 0.01:
+                stop = True
+
+        # We should reach terminal states from any starting point
+        reachable = self.nb_states - np.count_nonzero(v) == 0
+        return reachable

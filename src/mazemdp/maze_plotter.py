@@ -139,7 +139,7 @@ class MazePlotter:
         self, maze, using_notebook=bool(os.environ.get("WEB_NOTEBOOK", False))
     ):  # maze defined in the mdp notebook
         self.maze_attr = maze
-        self.terminal_states = maze.last_states
+        self.terminal_states = maze.terminal_states
         self.using_notebook = using_notebook
         self.figW = self.maze_attr.width
         self.figH = self.maze_attr.height
@@ -165,6 +165,10 @@ class MazePlotter:
                 color = np.zeros(3)
                 if self.maze_attr.cells[i][j] == -1:
                     color[0] = color[1] = color[2] = 0
+                elif state in self.terminal_states:
+                    color[0] = 0.9
+                    color[1] = 0
+                    color[2] = 0.7
                 else:
                     color[0] = color[1] = color[2] = 1
                 table.add_cell(j, i, 0.1, 0.2, facecolor=color, text="", loc="center")
@@ -337,6 +341,10 @@ class MazePlotter:
         color = np.zeros(3)
         if state == -1:
             color[0] = color[1] = color[2] = 0
+        elif state in self.terminal_states:
+            color[0] = 0.9
+            color[1] = 0
+            color[2] = 0.7
         else:
             color[0] = color[1] = color[2] = np.min([1 - v[state] / (np.max(v) + 1), 1])
 
@@ -347,6 +355,10 @@ class MazePlotter:
         color = np.zeros(3)
         if state == -1:
             color[0] = color[1] = color[2] = 0
+        elif state in self.terminal_states:
+            color[0] = 0.9
+            color[1] = 0
+            color[2] = 0.7
         else:
             color[0] = color[1] = color[2] = np.min(
                 [1 - np.max(q[state]) / (np.max(q) + 1), 1]
@@ -425,6 +437,10 @@ class MazePlotter:
         color = np.zeros(3)
         if state in self.maze_attr.walls:
             color[0] = color[1] = color[2] = 0
+        elif state in self.terminal_states:
+            color[0] = 0.9
+            color[1] = 0
+            color[2] = 0.7
         else:
             color[0] = color[1] = color[2] = np.min(
                 [1 - np.max(q[state]) / (np.max(q) + 1), 1]
