@@ -99,12 +99,12 @@ class Maze:  # describes a maze-like environment
 
         # ##################### Distribution Over Initial States ######################
 
-        start_distribution = np.zeros(
-            self.nb_states
-        )  # distribution over initial states
+        start_distribution = np.zeros(self.nb_states)
 
         if start_states is None:
             for state in start_distribution:
+                print(start_distribution)
+                print(state)
                 start_distribution[state] = 1.0 / len(start_distribution)
         else:
             for state in start_states:
