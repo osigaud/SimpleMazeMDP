@@ -42,7 +42,7 @@ def softmax(q, x, temperature):
     # - p : probability of each action according to the soft-max distribution
 
     nb_options = len(q[x])
-    p = np.zeros(nb_options)
+    p = np.zeros((nb_options))
     sump = 0
     for i in range(nb_options):
         p[i] = np.exp((q[x, i] / temperature).round(5))
