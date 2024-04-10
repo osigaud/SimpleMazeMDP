@@ -102,12 +102,10 @@ class Maze:  # describes a maze-like environment
         start_distribution = np.zeros(self.nb_states)
 
         if start_states is None:
-            for state in start_distribution:
-                print(start_distribution)
-                print(state)
+            for state in range(len(start_distribution)):
                 start_distribution[state] = 1.0 / len(start_distribution)
         else:
-            for state in start_states:
+            for state in range(len(start_states)):
                 start_distribution[state] = 1.0 / len(start_states)
 
         # ##################### Transition Matrix ######################
