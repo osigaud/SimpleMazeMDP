@@ -175,7 +175,7 @@ class MazePlotter:
                 table.add_cell(j, i, 0.1, 0.2, facecolor=color, text="", loc="center")
 
     def display(self, rgba, mode):
-        if mode == "human" or mode == "legacy":
+        if mode == "human":
             if self.using_notebook:
                 import IPython.display as display
                 from PIL import Image
@@ -189,6 +189,20 @@ class MazePlotter:
                     self.widget_out is None
                     or self.widget_execution_count != get_ipython().execution_count
                 ):
+                    # play = widgets.Play(
+                    #     value=50,
+                    #     min=0,
+                    #     max=100,
+                    #     step=1,
+                    #     interval=500,
+                    #     description="Press play",
+                    #     disabled=False
+                    # )
+                    # slider = widgets.IntSlider()
+                    # widgets.jslink((play, 'value'), (slider, 'value'))
+                    # self.widget_out = widgets.HBox([play, slider])
+                    # display.display(self.widget_out)
+                    
                     self.widget_out = widgets.Output()
                     self.widget_execution_count = get_ipython().execution_count
                     display.display(self.widget_out)
@@ -199,6 +213,8 @@ class MazePlotter:
                     output = io.BytesIO()
                     image.save(output, format="png")
                     display.display(display.Image(data=output.getvalue(), format="png"))
+                    
+                    
             else:
                 fig = plt.gcf()
                 fig.clear()
@@ -230,24 +246,15 @@ class MazePlotter:
 
     def new_render(self, title, mode="human"):
         """
-        initializes the plot by creating its basic components (figure, axis, agent patch and table)
-        a trace of these components is stored so that the old outputs will last on the notebook
-        when a new rendering is performed
+        initializes the plot by creating its basic components (figure, axis,
+        agent patch and table) a trace of these components is stored so that the
+        old outputs will last on the notebook when a new rendering is performed
         """
 
         self.render_base(title)
-
         canvas = self.plot_history[-1].canvas
         canvas.draw()
         rgba = np.asarray(canvas.buffer_rgba())
-
-        if mode == "legacy":
-            # Do not draw if other than legacy
-            self.video_name = f"{title.replace(' ', '')}.avi"
-            if self.video_writer is not None:
-                self.video_writer.release()
-                self.video_writer = None
-
         return self.display(rgba, mode)
 
     def render(
@@ -257,16 +264,13 @@ class MazePlotter:
         agent_state=None,
         stochastic=False,
         title="No title",
-        mode="legacy",
+        mode="human",
     ):
         """
         updates the values of the table
         and the agent position and current policy
         some of these components may not show depending on the parameters given when calling this function
         the agent state is set to None if we do not want to plot the agent
-
-        Args:
-            mode: legacy to use the old display mode, or human/rgba for gym environments
         """
         # self.render_base(title)
 
@@ -316,25 +320,6 @@ class MazePlotter:
         plot.canvas.draw()
         plot.canvas.flush_events()
         rgba = np.asarray(plot.canvas.buffer_rgba())
-
-        if self.using_notebook and mode == "legacy":
-            # Adds an image to the video
-
-            # Get image
-            image = rgba
-            # Record video
-            if self.video_writer is None:
-                loc_height, loc_width, _ = image.shape
-                codec = cv2.VideoWriter_fourcc(*"MJPG")
-                fps = int(os.environ.get("VIDEO_FPS", 3))
-                self.video_writer = cv2.VideoWriter(
-                    f"{self.video_folder}/{self.video_name}",
-                    codec,
-                    fps,
-                    (loc_width, loc_height),
-                )
-            image = image[:, :, :3]  # remove alpha
-            self.video_writer.write(image[:, :, ::-1])  # convert to BGR
 
         return self.display(rgba, mode)
 
