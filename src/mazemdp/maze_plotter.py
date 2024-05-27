@@ -214,7 +214,6 @@ class MazePlotter:
                     image.save(output, format="png")
                     display.display(display.Image(data=output.getvalue(), format="png"))
                     
-                    
             else:
                 fig = plt.gcf()
                 fig.clear()
@@ -267,13 +266,11 @@ class MazePlotter:
         mode="human",
     ):
         """
-        updates the values of the table
-        and the agent position and current policy
-        some of these components may not show depending on the parameters given when calling this function
-        the agent state is set to None if we do not want to plot the agent
+        updates the values of the table and the agent position and current
+        policy some of these components may not show depending on the parameters
+        given when calling this function the agent state is set to None if we do
+        not want to plot the agent
         """
-        # self.render_base(title)
-
         if v is None:
             v = np.array([])
 
