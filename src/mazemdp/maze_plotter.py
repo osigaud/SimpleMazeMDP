@@ -153,7 +153,7 @@ class MazePlotter:
 
         os.makedirs(self.video_folder, exist_ok=True)
 
-        self.widget_out = None
+        self.widget_maze = None
 
     def init_table(self, table: Table):
         """
@@ -176,52 +176,12 @@ class MazePlotter:
 
     def display(self, rgba, mode):
         if mode == "human":
-            if self.using_notebook:
-                import IPython.display as display
-                from PIL import Image
-                import io
-                import ipywidgets as widgets
-
-                # Creates a new widget if needed
-                # (1) no widget
-                # (2) widget in another cell
-                if (
-                    self.widget_out is None
-                    or self.widget_execution_count != get_ipython().execution_count
-                ):
-                    # play = widgets.Play(
-                    #     value=50,
-                    #     min=0,
-                    #     max=100,
-                    #     step=1,
-                    #     interval=500,
-                    #     description="Press play",
-                    #     disabled=False
-                    # )
-                    # slider = widgets.IntSlider()
-                    # widgets.jslink((play, 'value'), (slider, 'value'))
-                    # self.widget_out = widgets.HBox([play, slider])
-                    # display.display(self.widget_out)
-                    
-                    self.widget_out = widgets.Output()
-                    self.widget_execution_count = get_ipython().execution_count
-                    display.display(self.widget_out)
-
-                self.widget_out.clear_output(True)
-                with self.widget_out:
-                    image = Image.fromarray(rgba, "RGBA")
-                    output = io.BytesIO()
-                    image.save(output, format="png")
-                    display.display(display.Image(data=output.getvalue(), format="png"))
-                    
-            else:
-                fig = plt.gcf()
-                fig.clear()
-                ax = fig.add_subplot()
-                ax.axis("off")
-                ax.imshow(rgba)
-                plt.show(block=False)
-
+            fig = plt.gcf()
+            fig.clear()
+            ax = fig.add_subplot()
+            ax.axis("off")
+            ax.imshow(rgba)
+            plt.show(block=False)
         elif mode == "rgb_array":
             return rgba.copy()
         else:
@@ -242,6 +202,52 @@ class MazePlotter:
 
         self.init_table(table)
         axes.add_table(table)
+    
+    def render_notebook(self, title):
+        import IPython.display as display
+        import ipywidgets as widgets
+        
+        # Creates a new widget if needed
+        # (1) no widget
+        # (2) widget in another cell
+        if (
+            self.widget_maze is None
+            or self.widget_execution_count != get_ipython().execution_count
+        ):
+            from .nbwidget import MazeWidget
+            self.widget_maze = MazeWidget(self.maze_attr, title=title)
+            play = widgets.Play(
+                value=50,
+                min=1,
+                max=1,
+                step=1,
+                interval=500,
+                description="Press play",
+                disabled=False
+            )
+            slider = widgets.IntSlider(min=1, max=1)
+            widgets.jslink((play, 'value'), (slider, 'value'))
+            widgets.jslink((slider, 'value'), (self.widget_maze, 'step'))
+                        
+            widgets.jslink((self.widget_maze, 'steps'), (slider, 'max'))
+            widgets.jslink((self.widget_maze, 'steps'), (play, 'max'))
+            
+            widget_out = widgets.VBox([self.widget_maze, play, slider])
+            self.widget_execution_count = get_ipython().execution_count
+            display.display(widget_out)
+
+
+    def render_notebook_step(self, title, v, policy, agent_state):
+        self.render_notebook(title)
+        if title:
+            self.widget_maze.set_title(title)
+            
+        self.widget_maze.send({ 
+            "type": "add-step",
+            "value": v.tolist() if v is not None else None,
+            "policy": policy.tolist() if policy is not None else None,
+            "agent_state": agent_state
+        })
 
     def new_render(self, title, mode="human"):
         """
@@ -249,12 +255,15 @@ class MazePlotter:
         agent patch and table) a trace of these components is stored so that the
         old outputs will last on the notebook when a new rendering is performed
         """
-
-        self.render_base(title)
-        canvas = self.plot_history[-1].canvas
-        canvas.draw()
-        rgba = np.asarray(canvas.buffer_rgba())
-        return self.display(rgba, mode)
+        
+        if mode == "human" and self.using_notebook:
+            self.render_notebook(title)
+        else:
+            self.render_base(title)
+            canvas = self.plot_history[-1].canvas
+            canvas.draw()
+            rgba = np.asarray(canvas.buffer_rgba())
+            return self.display(rgba, mode)
 
     def render(
         self,
@@ -271,6 +280,10 @@ class MazePlotter:
         given when calling this function the agent state is set to None if we do
         not want to plot the agent
         """
+        if mode == "human" and self.using_notebook:
+            self.render_notebook_step(title, v, policy, agent_state)
+            return
+        
         if v is None:
             v = np.array([])
 

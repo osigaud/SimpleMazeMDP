@@ -1,0 +1,34 @@
+table.maze {
+    border-collapse: collapse;
+}
+
+td {
+    text-align: center;
+}
+
+table.maze td.cell {
+    border: 1px solid black;
+}
+
+td.wall {
+    background: black;
+}
+
+td.terminal {
+    background: purple;
+}
+
+table.maze table td {
+    width: .5rem;
+    height: .5rem;
+}
+
+table.maze table td.arrow {
+    color: white;
+    font-weight: bold;
+}
+
+table.maze table td.value {
+    width: 2rem;
+    height: 2rem;
+}
