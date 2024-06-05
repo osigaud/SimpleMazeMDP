@@ -221,7 +221,8 @@ class MazePlotter:
                 min=1,
                 max=1,
                 step=1,
-                interval=500,
+                # Time between two steps in milliseconds
+                interval=100, 
                 description="Press play",
                 disabled=False
             )
@@ -242,12 +243,11 @@ class MazePlotter:
         if title:
             self.widget_maze.set_title(title)
             
-        self.widget_maze.send({ 
-            "type": "add-step",
-            "value": v.tolist() if v is not None else None,
-            "policy": policy.tolist() if policy is not None else None,
-            "agent_state": agent_state
-        })
+        self.widget_maze.add_step(
+            value=v.tolist() if v is not None else None,
+            policy=policy.tolist() if policy is not None else None,
+            agent_state=agent_state
+        )
 
     def new_render(self, title, mode="human"):
         """

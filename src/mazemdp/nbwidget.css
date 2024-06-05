@@ -15,7 +15,7 @@ td.wall {
 }
 
 td.terminal {
-    background: purple;
+    background: rgb(246, 170, 246);
 }
 
 table.maze table td {
