@@ -8,9 +8,9 @@ import numpy as np
 
 from mazemdp.maze import Maze
 
-def get_file(name: str):
+def get_file(name: str, force_string: bool = False):
     with importlib.resources.path("mazemdp", name) as path:
-        if isinstance(path, Path):
+        if isinstance(path, Path) and not force_string:
             return path
         return path.read_text()
     
@@ -20,7 +20,7 @@ def array_to_json(array: np.ndarray, widget: anywidget.AnyWidget):
 class MazeWidget(ipyreact.Widget):
     # Widget front-end JavaScript code
     _esm = get_file("nbwidget.tsx")
-    _css = get_file("nbwidget.css")
+    _css = get_file("nbwidget.css", True)
 
     # Stateful property that can be accessed by JavaScript & Python
     step = traitlets.Int(1).tag(sync=True)

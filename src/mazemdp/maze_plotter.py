@@ -215,6 +215,8 @@ class MazePlotter:
             or self.widget_execution_count != get_ipython().execution_count
         ):
             from .nbwidget import MazeWidget
+            if self.widget_maze is None:
+                display.display(display.HTML("<style>" + MazeWidget._css + "</style>"))
             self.widget_maze = MazeWidget(self.maze_attr, title=title)
             play = widgets.Play(
                 value=50,
@@ -235,6 +237,7 @@ class MazePlotter:
             
             widget_out = widgets.VBox([self.widget_maze, play, slider])
             self.widget_execution_count = get_ipython().execution_count
+            
             display.display(widget_out)
 
 
