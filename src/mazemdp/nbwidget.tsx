@@ -1,8 +1,13 @@
 import * as React from "react";
 import { useMemo } from 'react';
 
-
-const getStatesMap = (cells) => {
+/**
+ * 
+ * @param cells A of states
+ * @returns 
+ */
+const getStatesMap = (cells: number[][]) => {
+    // A matrix of cells
     const cell2state: (null|number)[][] = []
     let current_state = 0
 
@@ -24,6 +29,12 @@ const getStatesMap = (cells) => {
     )
     return cell2state
 }
+
+const NORTH = 0;
+const SOUTH = 1
+const EAST = 2
+const WEST = 3
+
 
 const ShowCell = ({value}) => {
     let x: null|number = null
@@ -51,9 +62,9 @@ const ShowCell = ({value}) => {
     }
 
     return <table>
-        <tr><td></td><td className="arrow" style={styles[0]}>↑</td><td></td></tr>
-        <tr><td className="arrow" style={styles[3]}></td><td className="value">{x != null ? x?.toFixed(2) : ""}</td><td className="arrow" style={styles[1]}>→</td></tr>
-        <tr><td></td><td className="arrow" style={styles[2]}></td><td></td></tr>
+        <tr><td></td><td className="arrow" style={styles[NORTH]}>↑</td><td></td></tr>
+        <tr><td className="arrow" style={styles[WEST]}>←</td><td className="value">{x != null ? x?.toFixed(2) : ""}</td><td className="arrow" style={styles[EAST]}>→</td></tr>
+        <tr><td></td><td className="arrow" style={styles[SOUTH]}>↓</td><td></td></tr>
     </table>
 }
 
@@ -64,7 +75,7 @@ const ShowCells = ({ cells, terminal_states, values }) => {
     return <table className="maze">{
         cells.map((row, i) => <tr key={i}>{
             row.map((cell, j) => {
-                let s = cell2state[i][j]
+                let s = cell2state[j][i]
                 let cellCN  = "cell"
                 if (s === null) {
                     cellCN = "cell wall"
@@ -73,7 +84,7 @@ const ShowCells = ({ cells, terminal_states, values }) => {
                         cellCN = "cell terminal"
                     }
                 }
-                return <td key={j} className={cellCN}>{
+                return <td key={j} className={cellCN} title={`State ${s}`}>{
                     s !== null && <ShowCell value={values && values[s]}/>
                 }</td>
             })
