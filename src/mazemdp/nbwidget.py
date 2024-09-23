@@ -43,7 +43,7 @@ class MazeWidget(ipyreact.Widget):
     history: List
     
     def __init__(self, mdp: Maze, title=""):
-        super().__init__(title="", cells=mdp.cells, terminal_states=mdp.terminal_states)
+        super().__init__(title="", cells=mdp.cells.T, terminal_states=mdp.terminal_states)
         self.mdp = mdp
         self.history = []
         

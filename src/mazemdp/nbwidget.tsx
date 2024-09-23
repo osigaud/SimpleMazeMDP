@@ -1,35 +1,6 @@
 import * as React from "react";
 import { useMemo } from 'react';
 
-/**
- * 
- * @param cells A of states
- * @returns 
- */
-const getStatesMap = (cells: number[][]) => {
-    // A matrix of cells
-    const cell2state: (null|number)[][] = []
-    let current_state = 0
-
-    cells.forEach(
-        (row) => {
-            let row_map: (null|number)[] = []
-            row.forEach(
-                (cell) => {
-                    if (cell >= 0) {
-                        row_map.push(current_state)
-                        current_state += 1
-                    } else {
-                        row_map.push(null)
-                    }
-                }
-            )
-            cell2state.push(row_map)
-        }
-    )
-    return cell2state
-}
-
 const NORTH = 0;
 const SOUTH = 1
 const EAST = 2
@@ -70,14 +41,13 @@ const ShowCell = ({value}) => {
 
 const ShowCells = ({ cells, terminal_states, values }) => {
     const terminals = useMemo(() => new Set(terminal_states), [terminal_states]);
-    const cell2state = useMemo(() => getStatesMap(cells), [cells]);
 
     return <table className="maze">{
         cells.map((row, i) => <tr key={i}>{
             row.map((cell, j) => {
-                let s = cell2state[j][i]
+                let s = cells[i][j]
                 let cellCN  = "cell"
-                if (s === null) {
+                if (s < 0) {
                     cellCN = "cell wall"
                 } else {
                     if (terminals.has(s)) {
@@ -85,7 +55,7 @@ const ShowCells = ({ cells, terminal_states, values }) => {
                     }
                 }
                 return <td key={j} className={cellCN} title={`State ${s}`}>{
-                    s !== null && <ShowCell value={values && values[s]}/>
+                    s >= 0 && <ShowCell value={values && values[s]}/>
                 }</td>
             })
         }</tr>)
