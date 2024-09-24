@@ -7,8 +7,20 @@ td {
 }
 
 table.maze td.cell {
+    position: relative;
     border: 1px solid black;
 }
+
+table.maze td.cell div.agent {
+    position: absolute;
+    left: 25%;
+    top: 25%;;
+    width: 50%;
+    height: 50%;
+    border-radius: 100%;
+    background:rgba(69, 100, 186, 0.5);
+}
+
 
 td.wall {
     background: black;
@@ -23,12 +35,16 @@ table.maze table td {
     height: .5rem;
 }
 
+
+
 table.maze table td.arrow {
-    color: white;
+    color: transparent;
     font-weight: bold;
 }
 
 table.maze table td.value {
+    position: relative;
     width: 2rem;
     height: 2rem;
 }
+

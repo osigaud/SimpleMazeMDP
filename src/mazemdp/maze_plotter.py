@@ -1,6 +1,7 @@
 """
 Author: Olivier Sigaud + Antonin Raffin
 """
+
 from dataclasses import dataclass
 from typing import Any, List
 from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -202,11 +203,11 @@ class MazePlotter:
 
         self.init_table(table)
         axes.add_table(table)
-    
+
     def render_notebook(self, title):
         import IPython.display as display
         import ipywidgets as widgets
-        
+
         # Creates a new widget if needed
         # (1) no widget
         # (2) widget in another cell
@@ -215,6 +216,7 @@ class MazePlotter:
             or self.widget_execution_count != get_ipython().execution_count
         ):
             from .nbwidget import MazeWidget
+
             if self.widget_maze is None:
                 display.display(display.HTML("<style>" + MazeWidget._css + "</style>"))
             self.widget_maze = MazeWidget(self.maze_attr, title=title)
@@ -224,32 +226,47 @@ class MazePlotter:
                 max=1,
                 step=1,
                 # Time between two steps in milliseconds
-                interval=100, 
+                interval=100,
                 description="Press play",
-                disabled=False
+                disabled=False,
+            )
+            step_backward = widgets.Button(
+                description="",
+                disabled=False,
+                button_style="",
+                tooltip="Step backward",
+                icon="step-backward",
+            )
+            step_forward = widgets.Button(
+                description="",
+                disabled=False,
+                button_style="",
+                tooltip="Step forward",
+                icon="step-forward",
             )
             slider = widgets.IntSlider(min=1, max=1)
-            widgets.jslink((play, 'value'), (slider, 'value'))
-            widgets.jslink((slider, 'value'), (self.widget_maze, 'step'))
-                        
-            widgets.jslink((self.widget_maze, 'steps'), (slider, 'max'))
-            widgets.jslink((self.widget_maze, 'steps'), (play, 'max'))
-            
-            widget_out = widgets.VBox([self.widget_maze, play, slider])
-            self.widget_execution_count = get_ipython().execution_count
-            
-            display.display(widget_out)
+            widgets.jslink((play, "value"), (slider, "value"))
+            widgets.jslink((slider, "value"), (self.widget_maze, "step"))
 
+            widgets.jslink((self.widget_maze, "steps"), (slider, "max"))
+            widgets.jslink((self.widget_maze, "steps"), (play, "max"))
+
+            widget_out = widgets.VBox([self.widget_maze, widgets.HBox([play, step_backward, step_forward]), slider])
+            step_backward.on_click(lambda _: self.widget_maze.history_step(-1))
+            step_forward.on_click(lambda _: self.widget_maze.history_step(1))
+            self.widget_execution_count = get_ipython().execution_count
+
+            display.display(widget_out)
 
     def render_notebook_step(self, title, v, policy, agent_state):
         self.render_notebook(title)
         if title:
             self.widget_maze.set_title(title)
-            
+
         self.widget_maze.add_step(
             value=v.tolist() if v is not None else None,
             policy=policy.tolist() if policy is not None else None,
-            agent_state=agent_state
+            agent_state=agent_state,
         )
 
     def new_render(self, title, mode="human"):
@@ -258,7 +275,7 @@ class MazePlotter:
         agent patch and table) a trace of these components is stored so that the
         old outputs will last on the notebook when a new rendering is performed
         """
-        
+
         if mode == "human" and self.using_notebook:
             self.render_notebook(title)
         else:
@@ -286,7 +303,7 @@ class MazePlotter:
         if mode == "human" and self.using_notebook:
             self.render_notebook_step(title, v, policy, agent_state)
             return
-        
+
         if v is None:
             v = np.array([])
 

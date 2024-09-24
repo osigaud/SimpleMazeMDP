@@ -1,7 +1,8 @@
-from typing import List
+from typing import List, Optional
 from pathlib import Path
 import anywidget
 import ipyreact
+from dataclasses import dataclass
 import traitlets
 import importlib.resources
 import numpy as np
@@ -16,6 +17,12 @@ def get_file(name: str, force_string: bool = False):
     
 def array_to_json(array: np.ndarray, widget: anywidget.AnyWidget):
     return array.tolist()
+
+@dataclass
+class HistoryStep:
+    values: np.ndarray
+    policy: Optional[np.ndarray]
+    agent_state: Optional[int]
 
 class MazeWidget(ipyreact.Widget):
     # Widget front-end JavaScript code
@@ -37,10 +44,16 @@ class MazeWidget(ipyreact.Widget):
     terminal_states = traitlets.List(traitlets.Int()).tag(sync=True)
     
     # Values (V or Q, depending on shape)
-    values = traitlets.List(None).tag(sync=True)
+    policy = traitlets.List(None, allow_none=True).tag(sync=True)
+
+    # Policy (deterministic or not, depending on the shape)
+    values = traitlets.List(None, allow_none=True).tag(sync=True)
+
+    # Policy (deterministic or not, depending on the shape)
+    agent_state = traitlets.Integer(None, allow_none=True).tag(sync=True)
 
     #: List of v or q-values
-    history: List
+    history: List[HistoryStep]
     
     def __init__(self, mdp: Maze, title=""):
         super().__init__(title="", cells=mdp.cells.T, terminal_states=mdp.terminal_states)
@@ -49,10 +62,17 @@ class MazeWidget(ipyreact.Widget):
         
     @traitlets.observe("step")
     def observe_step(self, change):
-        self.set_trait("values", self.history[change.new-1])
+        self.set_trait("values", self.history[change.new-1].values)
+        self.set_trait("policy", self.history[change.new-1].policy)
+        self.set_trait("agent_state", self.history[change.new-1].agent_state)
         
+    def history_step(self, delta):
+        new_step = self.step + delta
+        if new_step >= 0 and new_step <= len(self.history):
+            self.set_trait("step", new_step)
+            
     def add_step(self, value=None, policy=None, agent_state=None):
-        self.history.append(value)
+        self.history.append(HistoryStep(value, policy, agent_state))
         
         # Change the # of steps
         self.set_trait("steps", len(self.history))
