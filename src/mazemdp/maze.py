@@ -53,7 +53,7 @@ class Maze:  # describes a maze-like environment
         height,
         nb_actions=4,
         gamma=0.9,
-        timeout=50,
+        timeout=None,
         start_states=None,
         walls=None,
         terminal_states=None,
@@ -66,7 +66,7 @@ class Maze:  # describes a maze-like environment
         :param action_list: List of possible actions
         :param nb_actions: used when action_list is empty, by default there are 4 of them (go north, south, eat or west)
         :param gamma: Discount factor of the mdp
-        :param timeout: Defines the length of an episode (max timestep) --see done() function
+        :param timeout: Timeout (deprecated: should be set in gymnasium)
         :param start_states: List defining the states where the agent can be at the beginning of an episode
         :param terminal_states: List defining the states corresponding to the step before the end of an episode
         """

@@ -3,6 +3,8 @@ Author: Olivier Sigaud
 """
 
 from functools import cached_property
+import logging
+from typing import Optional
 import numpy as np
 import random
 
@@ -24,10 +26,12 @@ class Mdp:
         plotter,
         gamma=0.9,
         terminal_states=None,
-        timeout=50,
+        timeout: Optional[int]=None,
         has_state=True,
     ):
-        assert timeout > 10, "timeout too short:" + timeout
+        if timeout is not None:
+            assert timeout > 10), "timeout too short:" + timeout
+            logging.warning("deprecation: timeout has been set in Mdp (SimpleMazeMDP)")
         self.nb_states = nb_states
         self.nb_actions = nb_actions
         if terminal_states is None:
