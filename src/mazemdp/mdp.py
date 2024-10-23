@@ -26,11 +26,11 @@ class Mdp:
         plotter,
         gamma=0.9,
         terminal_states=None,
-        timeout: Optional[int]=None,
+        timeout: Optional[int] = None,
         has_state=True,
     ):
         if timeout is not None:
-            assert timeout > 10), "timeout too short:" + timeout
+            assert timeout > 10, "timeout too short:" + timeout
             logging.warning("deprecation: timeout has been set in Mdp (SimpleMazeMDP)")
         self.nb_states = nb_states
         self.nb_actions = nb_actions
