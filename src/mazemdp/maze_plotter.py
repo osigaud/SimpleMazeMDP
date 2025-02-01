@@ -308,7 +308,6 @@ class MazePlotter:
         """
         if mode == "human" and self.using_notebook:
             self.render_notebook_step(title, v, policy, agent_state)
-            print(f"agent_state: {agent_state}")
             return
 
         if v is None:
@@ -339,6 +338,8 @@ class MazePlotter:
                     else:
                         self.render_policy(plot, policy, i, j, state)
 
+        print(agent_state)
+
         if agent_state is not None and len(self.maze_attr.state_width) > agent_state:
             x, y = coords(
                 self.maze_attr.width,
@@ -347,6 +348,11 @@ class MazePlotter:
                 self.maze_attr.state_height[agent_state],
             )
             plot.patch.center = x, y
+            radius = 0.1
+            circle_patch = plot.patch.Circle(
+                (x, y), radius=radius, edgecolor="blue", facecolor="blue"
+            )
+            plot.axes.add_patch(circle_patch)
             plot.axes.add_patch(plot.patch)
 
         plot.fig.subplots_adjust(left=0.2, bottom=0.2)
