@@ -251,7 +251,13 @@ class MazePlotter:
             widgets.jslink((self.widget_maze, "steps"), (slider, "max"))
             widgets.jslink((self.widget_maze, "steps"), (play, "max"))
 
-            widget_out = widgets.VBox([self.widget_maze, widgets.HBox([play, step_backward, step_forward]), slider])
+            widget_out = widgets.VBox(
+                [
+                    self.widget_maze,
+                    widgets.HBox([play, step_backward, step_forward]),
+                    slider,
+                ]
+            )
             step_backward.on_click(lambda _: self.widget_maze.history_step(-1))
             step_forward.on_click(lambda _: self.widget_maze.history_step(1))
             self.widget_execution_count = get_ipython().execution_count

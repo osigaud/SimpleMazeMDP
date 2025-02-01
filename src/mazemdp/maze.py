@@ -12,13 +12,20 @@ from mazemdp.mdp import Mdp
 from mazemdp.toolbox import E, N, S, W
 
 
-def build_maze(width, height, walls, hit=False):
+def build_maze(width, height, hit, walls, start_states):
     ts = height * width - 1 - len(walls)
-    maze = Maze(width, height, walls=walls, terminal_states=[ts], hit=hit)
+    maze = Maze(
+        width,
+        height,
+        hit=hit,
+        walls=walls,
+        terminal_states=[ts],
+        start_states=start_states,
+    )
     return maze.mdp, maze.nb_states, maze.coord_x, maze.coord_y
 
 
-def build_custom_maze(width, height, start_states, walls, terminal_states, hit=False):
+def build_custom_maze(width, height, hit, walls, terminal_states, start_states):
     maze = Maze(
         width,
         height,
@@ -30,18 +37,19 @@ def build_custom_maze(width, height, start_states, walls, terminal_states, hit=F
     return maze.mdp, maze.nb_states, maze.coord_x, maze.coord_y
 
 
-def create_random_maze(width, height, ratio, hit=False):
+def create_random_maze(width, height, hit, ratio, start_states):
     size = width * height
     n_walls = round(ratio * size)
 
     stop = False
-    mdp = None
     # the loop below is used to check that the maze has a solution
     # if one of the values after check_navigability is null, then another maze should be produced
     while not stop:
         walls = random.sample(range(size), int(n_walls))
 
-        mdp, nb_states, coord_x, coord_y = build_maze(width, height, walls, hit=hit)
+        mdp, nb_states, coord_x, coord_y = build_maze(
+            width, height, hit, walls, start_states
+        )
         stop = mdp.check_navigability()
     return mdp, nb_states, coord_x, coord_y
 
@@ -51,13 +59,13 @@ class Maze:  # describes a maze-like environment
         self,
         width,
         height,
+        hit=False,
         nb_actions=4,
         gamma=0.9,
         timeout=None,
         start_states=None,
         walls=None,
         terminal_states=None,
-        hit=False,
     ):
         """
         :param width: Int number defining the maze width
