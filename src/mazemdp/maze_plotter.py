@@ -308,6 +308,7 @@ class MazePlotter:
         """
         if mode == "human" and self.using_notebook:
             self.render_notebook_step(title, v, policy, agent_state)
+            print(f"agent_state: {agent_state}")
             return
 
         if v is None:
