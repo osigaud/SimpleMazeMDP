@@ -349,7 +349,7 @@ class MazePlotter:
             )
             plot.patch.center = x, y
             radius = 0.1
-            circle_patch = plot.patch.Circle(
+            circle_patch = mpatches.Circle(
                 (x, y), radius=radius, edgecolor="blue", facecolor="blue"
             )
             plot.axes.add_patch(circle_patch)
