@@ -67,14 +67,20 @@ class Mdp:
             self.current_state = sample_categorical(self.P0)
 
         self.timestep = 0
-        self.last_action_achieved = False
         return self.current_state
 
     def terminated(self):  # returns True if a terminal state was reached
         return self.current_state in self.terminal_states
 
     def truncated(self):
-        return self.timestep == self.timeout  # truncated when timeout reached
+        """
+        truncated=True when timeout reached
+        Warning, may collide with the timeLimit when wrapped into a gymnasium environment
+        Some the default value of self.timeout is None
+
+        :param self: the MDP
+        """
+        return self.timestep == self.timeout
 
     def step(self, u, deviation=0):  # performs a step forward in the environment,
         # if you want to add some noise to the reward, give a value to the deviation param
@@ -139,12 +145,15 @@ class Mdp:
         else:
             return self.plotter.render(v=v, title=title, mode=mode)
 
-        assert False, "Should not happen"
-
     def save_fig(self, title):  # saves the current output into the disk
         self.plotter.save_fig(title)
 
     def check_navigability(self):
+        """
+        Checks if any state can be reached from the starting state
+        To do so, uses value iteration: any reachable state should get a value above 0
+        :param self: the current MDP
+        """
         v = np.zeros(self.nb_states)  # initial state values are set to 0
         stop = False
 
