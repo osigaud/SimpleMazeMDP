@@ -50,7 +50,10 @@ class Mdp:
     @cached_property
     def action_space(self):
         """Legacy method to get the action space"""
-        import gym
+        try:
+            import gymnasium as gym
+        except ImportError:  # the original, unmaintained package
+            import gym
 
         return gym.spaces.Discrete(self.nb_actions)
 
@@ -114,7 +117,7 @@ class Mdp:
         return self.plotter.new_render(title, mode=mode)
 
     def render(
-        self, v=None, policy=None, agent_pos=None, title="No Title", mode="legacy"
+        self, v=None, policy=None, agent_pos=None, title="No Title", mode="human"
     ):  # outputs the agent in the environment with values V (or Q)
         if v is None:
             v = np.array([])
@@ -145,29 +148,29 @@ class Mdp:
         self.plotter.save_fig(title)
 
     def check_navigability(self):
+        """Can a terminal state be reached from every state of the maze?
+
+        Runs value iteration (without discount) until convergence: a state
+        from which no terminal state can be reached keeps a null value.
+
+        The update below is the vectorized form of
+        ``v[x] = max_u ( r[x, u] + sum_y P[x, u, y] * v_old[y] )``:
+        ``P @ v_old`` contracts the last axis of ``P`` (`[S, A, S]`) with
+        ``v_old``, giving the expected values `[S, A]`.
+        """
+        terminal = np.asarray(self.terminal_states, dtype=int)
+        # the value of a terminal state is its own reward: there is no future
+        terminal_values = np.max(self.r[terminal, :], axis=1)
+
         v = np.zeros(self.nb_states)  # initial state values are set to 0
         stop = False
 
         while not stop:
-            v_old = v.copy()
+            v_old = v
+            v = np.max(self.r + self.P @ v_old, axis=1)
+            v[terminal] = terminal_values
 
-            for x in range(self.nb_states):  # for each state x
-                # Compute the value of state x for each action u of the MDP action space
-                if x in self.terminal_states:
-                    v[x] = np.max(self.r[x, :])
-                else:
-                    v_temp = []
-                    for u in range(self.nb_actions):
-                        # Process sum of the values of the neighbouring states
-                        summ = 0
-                        for y in range(self.nb_states):
-                            summ = summ + self.P[x, u, y] * v_old[y]
-                        v_temp.append(self.r[x, u] + summ)
-
-                        # Select the highest state value among those computed
-                        v[x] = np.max(v_temp)
-
-                        # Test if convergence has been reached
+            # Test if convergence has been reached
             if (np.linalg.norm(v - v_old)) < 0.01:
                 stop = True
 
