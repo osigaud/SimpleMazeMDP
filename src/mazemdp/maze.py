@@ -37,15 +37,36 @@ def build_custom_maze(width, height, hit, walls, terminal_states, start_states):
     return maze.mdp, maze.nb_states, maze.coord_x, maze.coord_y
 
 
-def create_random_maze(width, height, hit, ratio, start_states):
+def create_random_maze(width, height, hit, ratio, start_states, seed=None):
+    """Draw a random maze
+
+    :param seed: controls where the walls are drawn from. Three cases, because
+        "reproducible" and "always the same maze" are two different needs:
+
+        - ``None`` (default): the global ``random`` stream. Successive mazes
+            differ, and are not reproducible from one run to the next.
+        - an ``int``: a *private* generator seeded with this value. Every maze
+            created with this seed is **identical**, whatever was drawn in
+            between -- which is what lets several copies of the same random
+            maze be built (one per environment of a vectorized environment).
+        - a ``random.Random``: that generator, whose stream advances at each
+            call. Successive mazes **differ**, as with the global stream, but
+            the whole sequence is reproducible if the caller seeded it.
+    """
     size = width * height
     n_walls = round(ratio * size)
+    if seed is None:
+        rng = random
+    elif isinstance(seed, random.Random):
+        rng = seed
+    else:
+        rng = random.Random(seed)
 
     stop = False
     # the loop below is used to check that the maze has a solution
     # if one of the values after check_navigability is null, then another maze should be produced
     while not stop:
-        walls = random.sample(range(size), int(n_walls))
+        walls = rng.sample(range(size), int(n_walls))
 
         mdp, nb_states, coord_x, coord_y = build_maze(
             width, height, hit, walls, start_states
@@ -141,7 +162,10 @@ class Maze:  # describes a maze-like environment
     @cached_property
     def action_space(self):
         """Legacy method to get the action space"""
-        import gym
+        try:
+            import gymnasium as gym
+        except ImportError:  # the original, unmaintained package
+            import gym
 
         return gym.spaces.Discrete(self.nb_actions)
 
