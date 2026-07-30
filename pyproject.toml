@@ -13,6 +13,11 @@ dependencies = [
 readme = {file = "README.md", content-type = "text/markdown"}
 dynamic = ["version"]
 
+[project.optional-dependencies]
+# `action_space` builds a gymnasium space; the import is optional at runtime
+# (it falls back to the original `gym`), but the tests exercise it
+test = ["pytest", "gymnasium"]
+
 [project.urls]
 homepage = "https://github.com/osigaud/SimpleMazeMDP"
 
