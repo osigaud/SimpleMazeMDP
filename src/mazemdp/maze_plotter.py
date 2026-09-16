@@ -184,7 +184,8 @@ class MazePlotter:
             ax.imshow(rgba)
             plt.show(block=False)
         elif mode == "rgb_array":
-            return rgba.copy()
+            # gymnasium's rgb_array convention is RGB (3 channels); drop alpha
+            return rgba[..., :3].copy()
         else:
             raise NotImplementedError(f"Mode {mode} is not implemented")
 
