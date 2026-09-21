@@ -65,11 +65,16 @@ class MazeWidget(ipyreact.Widget):
         self.mdp = mdp
         self.history = []
 
+    def show_step(self, step: int):
+        """Send the values, policy and agent position of `step` to the front-end"""
+        history_step = self.history[step - 1]
+        self.set_trait("values", history_step.values)
+        self.set_trait("policy", history_step.policy)
+        self.set_trait("agent_state", history_step.agent_state)
+
     @traitlets.observe("step")
     def observe_step(self, change):
-        self.set_trait("values", self.history[change.new - 1].values)
-        self.set_trait("policy", self.history[change.new - 1].policy)
-        self.set_trait("agent_state", self.history[change.new - 1].agent_state)
+        self.show_step(change.new)
 
     def history_step(self, delta):
         new_step = self.step + delta
@@ -82,8 +87,11 @@ class MazeWidget(ipyreact.Widget):
         # Change the # of steps
         self.set_trait("steps", len(self.history))
 
-        # Move to the last
+        # Move to the last -- and show it: the first step does not move
+        # `step` (it already is 1), so the observer would not fire and the
+        # maze would be drawn empty
         self.set_trait("step", len(self.history))
+        self.show_step(len(self.history))
 
     def set_title(self, title: str):
         self.set_trait("title", title)
